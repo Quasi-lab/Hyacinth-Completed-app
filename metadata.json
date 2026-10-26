@@ -1,0 +1,8 @@
+{
+  "name": "Hyacinth Clinic Analytics",
+  "description": "Live hospital analytics and financial intelligence dashboard for Hyacinth Clinic, connecting to Supabase star schema database.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
