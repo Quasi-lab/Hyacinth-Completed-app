@@ -6,15 +6,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnalyticsPayload, JoinedPatientRecord } from './types/database';
 import { Header } from './components/Header';
+import { OverviewHero } from './components/OverviewHero';
 import { KpiCards } from './components/KpiCards';
 import { FinancialLineChart } from './components/FinancialLineChart';
 import { DoctorBarChart } from './components/DoctorBarChart';
 import { AfflictionPieChart } from './components/AfflictionPieChart';
+import { InstrumentsView } from './components/InstrumentsView';
 import { PatientTable } from './components/PatientTable';
 import { RecordDetailModal } from './components/RecordDetailModal';
 import { NewRecordModal } from './components/NewRecordModal';
 import { SchemaModal } from './components/SchemaModal';
 import { Loader2, AlertCircle, RefreshCw, Layers } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 export default function App() {
   const [data, setData] = useState<AnalyticsPayload | null>(null);
@@ -130,76 +133,115 @@ export default function App() {
           </div>
         )}
 
-        {/* Populated Dashboard Experience */}
+        {/* Populated Dashboard Experience with Fluid Tab Transitions */}
         {data && (
-          <>
-            {/* Active Filter Notification Bar (if doctor or disease selected) */}
-            {(selectedDoctorId !== null || selectedAffliction !== null) && (
-              <div className="bg-emerald-50/90 border border-emerald-200/80 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-900">
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">Active Filter:</span>
-                  {selectedDoctorId !== null && (
-                    <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 font-medium">
-                      Physician: {data.charts.doctorWorkload.find(d => d.doctorID === selectedDoctorId)?.fullName}
-                    </span>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-8"
+            >
+              {activeTab === 'instruments' ? (
+                <InstrumentsView />
+              ) : (
+                <>
+                  {/* Active Filter Notification Bar (if doctor or disease selected) */}
+                  {(selectedDoctorId !== null || selectedAffliction !== null) && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="bg-emerald-50/90 border border-emerald-200/80 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-900"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">Active Filter:</span>
+                        {selectedDoctorId !== null && (
+                          <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                            Physician: {data.charts.doctorWorkload.find(d => d.doctorID === selectedDoctorId)?.fullName}
+                          </span>
+                        )}
+                        {selectedAffliction !== null && (
+                          <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 font-medium">
+                            Affliction: {selectedAffliction}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={handleClearFilters}
+                        className="font-medium underline hover:text-emerald-700 transition-colors"
+                      >
+                        Clear all filters
+                      </button>
+                    </motion.div>
                   )}
-                  {selectedAffliction !== null && (
-                    <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 font-medium">
-                      Affliction: {selectedAffliction}
-                    </span>
+
+                  {/* 1. Comprehensive Introductory Summary (5Ws and H & Beneficiaries) */}
+                  {activeTab === 'overview' && (
+                    <section id="briefing" className="space-y-6">
+                      <OverviewHero />
+                    </section>
                   )}
-                </div>
-                <button
-                  onClick={handleClearFilters}
-                  className="font-medium underline hover:text-emerald-700 transition-colors"
-                >
-                  Clear all filters
-                </button>
-              </div>
-            )}
 
-            {/* 1. Executive Financial & Capacity KPI Strip */}
-            <section id="overview" className="space-y-4">
-              <KpiCards summary={data.summary} />
-            </section>
+                  {/* 2. Executive Financial & Capacity KPI Strip */}
+                  {(activeTab === 'overview' || activeTab === 'financials') && (
+                    <section id="overview" className="space-y-4">
+                      <KpiCards summary={data.summary} />
+                    </section>
+                  )}
 
-            {/* 2. Graph 1: Financial Costs Timeline Line Graph */}
-            <section id="financials" className="space-y-4">
-              <FinancialLineChart data={data.charts.timeline} />
-            </section>
+                  {/* 3. Graph 1: Financial Costs Timeline Line Graph */}
+                  {(activeTab === 'overview' || activeTab === 'financials') && (
+                    <section id="financials" className="space-y-4">
+                      <FinancialLineChart data={data.charts.timeline} />
+                    </section>
+                  )}
 
-            {/* 3. Graphs 2 & 3: Doctor Patient Load Bar Graph & Afflictions Pie Graph */}
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Graph 2: Doctor Patient Caseload Bar Graph */}
-              <div id="physicians" className="lg:col-span-6 h-full">
-                <DoctorBarChart
-                  data={data.charts.doctorWorkload}
-                  selectedDoctorId={selectedDoctorId}
-                  onSelectDoctor={setSelectedDoctorId}
-                />
-              </div>
+                  {/* 4. Graphs 2 & 3: Doctor Patient Load Bar Graph & Afflictions Pie Graph */}
+                  {(activeTab === 'overview' || activeTab === 'physicians' || activeTab === 'afflictions') && (
+                    <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                      {/* Graph 2: Doctor Patient Caseload Bar Graph */}
+                      {(activeTab === 'overview' || activeTab === 'physicians') && (
+                        <div id="physicians" className={`${activeTab === 'physicians' ? 'lg:col-span-12' : 'lg:col-span-6'} h-full`}>
+                          <DoctorBarChart
+                            data={data.charts.doctorWorkload}
+                            selectedDoctorId={selectedDoctorId}
+                            onSelectDoctor={setSelectedDoctorId}
+                          />
+                        </div>
+                      )}
 
-              {/* Graph 3: Diseases & Afflictions Pie Graph */}
-              <div id="afflictions" className="lg:col-span-6 h-full">
-                <AfflictionPieChart
-                  data={data.charts.diseaseDistribution}
-                  selectedAffliction={selectedAffliction}
-                  onSelectAffliction={setSelectedAffliction}
-                />
-              </div>
-            </section>
+                      {/* Graph 3: Diseases & Afflictions Pie Graph */}
+                      {(activeTab === 'overview' || activeTab === 'afflictions') && (
+                        <div id="afflictions" className={`${activeTab === 'afflictions' ? 'lg:col-span-12' : 'lg:col-span-6'} h-full`}>
+                          <AfflictionPieChart
+                            data={data.charts.diseaseDistribution}
+                            selectedAffliction={selectedAffliction}
+                            onSelectAffliction={setSelectedAffliction}
+                          />
+                        </div>
+                      )}
+                    </section>
+                  )}
 
-            {/* 4. Live Patient Records & Billing Ledger Table */}
-            <section id="records" className="space-y-4">
-              <PatientTable
-                records={data.joinedRecords}
-                selectedDoctorId={selectedDoctorId}
-                selectedAffliction={selectedAffliction}
-                onSelectRecord={setSelectedRecord}
-                onClearFilters={handleClearFilters}
-              />
-            </section>
-          </>
+                  {/* 5. Live Patient Records & Billing Ledger Table */}
+                  {(activeTab === 'overview' || activeTab === 'records') && (
+                    <section id="records" className="space-y-4">
+                      <PatientTable
+                        records={data.joinedRecords}
+                        selectedDoctorId={selectedDoctorId}
+                        selectedAffliction={selectedAffliction}
+                        onSelectRecord={setSelectedRecord}
+                        onClearFilters={handleClearFilters}
+                      />
+                    </section>
+                  )}
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
         )}
       </main>
 

@@ -1,5 +1,6 @@
-import React from 'react';
-import { RefreshCw, Plus, Database, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { RefreshCw, Plus, Database, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
   activeTab: string;
@@ -13,6 +14,15 @@ interface Props {
   onChangeInterval: (interval: number) => void;
 }
 
+const TABS = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'financials', label: 'Financials' },
+  { id: 'physicians', label: 'Physicians' },
+  { id: 'afflictions', label: 'Afflictions' },
+  { id: 'instruments', label: 'Instruments' },
+  { id: 'records', label: 'Records' },
+];
+
 export const Header: React.FC<Props> = ({
   activeTab,
   onSelectTab,
@@ -24,16 +34,23 @@ export const Header: React.FC<Props> = ({
   refreshInterval,
   onChangeInterval,
 }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
-    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-emerald-100/80 shadow-xs">
+    <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-emerald-100/80 shadow-xs transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Strict 3-Zone Top Bar Contract */}
-        <div className="flex items-center justify-between gap-8 h-16">
+        <div className="flex items-center justify-between gap-4 sm:gap-8 h-16">
           {/* Zone 1: Brand Wordmark */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-xs">
+            <motion.div
+              whileHover={{ rotate: 5, scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-xs cursor-pointer"
+              onClick={() => onSelectTab('overview')}
+            >
               <span className="font-bold text-lg font-serif">H</span>
-            </div>
+            </motion.div>
             <a
               href="#overview"
               onClick={e => {
@@ -46,61 +63,86 @@ export const Header: React.FC<Props> = ({
             </a>
           </div>
 
-          {/* Zone 2: 4–5 single-line nav links */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-            <button
-              onClick={() => onSelectTab('overview')}
-              className={`hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0 py-1 ${
-                activeTab === 'overview' ? 'text-emerald-800 font-semibold border-b-2 border-emerald-600' : ''
-              }`}
-            >
-              Overview
-            </button>
-            <button
-              onClick={() => onSelectTab('financials')}
-              className={`hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0 py-1 ${
-                activeTab === 'financials' ? 'text-emerald-800 font-semibold border-b-2 border-emerald-600' : ''
-              }`}
-            >
-              Financials
-            </button>
-            <button
-              onClick={() => onSelectTab('physicians')}
-              className={`hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0 py-1 ${
-                activeTab === 'physicians' ? 'text-emerald-800 font-semibold border-b-2 border-emerald-600' : ''
-              }`}
-            >
-              Physicians
-            </button>
-            <button
-              onClick={() => onSelectTab('afflictions')}
-              className={`hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0 py-1 ${
-                activeTab === 'afflictions' ? 'text-emerald-800 font-semibold border-b-2 border-emerald-600' : ''
-              }`}
-            >
-              Afflictions
-            </button>
-            <button
-              onClick={() => onSelectTab('records')}
-              className={`hover:text-emerald-700 transition-colors whitespace-nowrap shrink-0 py-1 ${
-                activeTab === 'records' ? 'text-emerald-800 font-semibold border-b-2 border-emerald-600' : ''
-              }`}
-            >
-              Records
-            </button>
+          {/* Zone 2: Desktop Navigation with Animated Sliding Indicator */}
+          <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 relative">
+            {TABS.map(tab => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onSelectTab(tab.id)}
+                  className={`relative px-3.5 py-1.5 rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 ${
+                    isActive ? 'text-emerald-900 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className="relative z-10">{tab.label}</span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTabBadge"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      className="absolute inset-0 bg-emerald-50 border border-emerald-200/80 rounded-lg shadow-2xs z-0"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </nav>
 
-          {/* Zone 3: 1 Primary Action */}
-          <div className="flex items-center gap-3 shrink-0">
-            <button
+          {/* Zone 3: 1 Primary Action + Mobile Trigger */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.02 }}
               onClick={onOpenNewRecord}
-              className="px-4 py-2 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-all shadow-xs flex items-center gap-1.5 whitespace-nowrap shrink-0"
+              className="px-3.5 sm:px-4 py-2 text-xs font-semibold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-all shadow-xs flex items-center gap-1.5 whitespace-nowrap shrink-0"
             >
               <Plus className="w-3.5 h-3.5" />
-              Log Admission
+              <span className="hidden xs:inline">Log Admission</span>
+              <span className="xs:hidden">Log</span>
+            </motion.button>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+              aria-label="Toggle Navigation Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
+
+        {/* Mobile Navigation Drawer */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="md:hidden border-t border-slate-100 py-3 overflow-hidden"
+            >
+              <div className="grid grid-cols-3 gap-1.5">
+                {TABS.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      onSelectTab(tab.id);
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`py-2 px-3 text-xs font-medium rounded-lg text-center transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-emerald-100/80 text-emerald-900 font-semibold border border-emerald-300'
+                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Secondary Utility / Telemetry Bar below header */}
         <div className="py-2 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
@@ -133,7 +175,9 @@ export const Header: React.FC<Props> = ({
             </div>
 
             {/* Manual Sync Button */}
-            <button
+            <motion.button
+              whileTap={{ rotate: 180 }}
+              transition={{ duration: 0.3 }}
               onClick={onRefresh}
               disabled={isRefreshing}
               className="p-1 text-slate-500 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors flex items-center gap-1"
@@ -141,7 +185,7 @@ export const Header: React.FC<Props> = ({
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
               <span className="text-xs">Sync</span>
-            </button>
+            </motion.button>
 
             {/* Star Schema Explorer Button */}
             <button

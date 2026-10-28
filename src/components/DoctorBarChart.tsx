@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { DoctorWorkloadItem } from '../types/database';
-import { UserCheck, Stethoscope, ArrowUpDown, DollarSign, Filter } from 'lucide-react';
+import { Stethoscope, Filter } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
   data: DoctorWorkloadItem[];
@@ -8,7 +9,7 @@ interface Props {
   onSelectDoctor: (doctorId: number | null) => void;
 }
 
-type SortBy = 'patients' | 'revenue' | 'experience';
+type SortBy = 'patients' | 'revenue';
 
 export const DoctorBarChart: React.FC<Props> = ({ data, selectedDoctorId, onSelectDoctor }) => {
   const [sortBy, setSortBy] = useState<SortBy>('patients');
@@ -24,7 +25,6 @@ export const DoctorBarChart: React.FC<Props> = ({ data, selectedDoctorId, onSele
   // Sort list according to active preference
   const sortedData = [...data].sort((a, b) => {
     if (sortBy === 'revenue') return b.totalRevenue - a.totalRevenue;
-    if (sortBy === 'experience') return b.experienceYears - a.experienceYears;
     return b.patientCount - a.patientCount;
   });
 
@@ -32,7 +32,12 @@ export const DoctorBarChart: React.FC<Props> = ({ data, selectedDoctorId, onSele
   const maxRevenue = Math.max(...data.map(d => d.totalRevenue), 1);
 
   return (
-    <div className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 flex flex-col justify-between">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 flex flex-col justify-between transition-all duration-300 hover:shadow-md"
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-emerald-50">
         <div className="flex items-center gap-2">
@@ -48,98 +53,111 @@ export const DoctorBarChart: React.FC<Props> = ({ data, selectedDoctorId, onSele
         {/* Sort and Filter controls */}
         <div className="flex items-center gap-2">
           {selectedDoctorId !== null && (
-            <button
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
               onClick={() => onSelectDoctor(null)}
               className="text-xs px-2.5 py-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 hover:bg-amber-100 transition-colors flex items-center gap-1"
             >
               <Filter className="w-3 h-3" />
               Clear Filter
-            </button>
+            </motion.button>
           )}
 
           <div className="flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200/80 text-xs">
-            <button
-              onClick={() => setSortBy('patients')}
-              className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                sortBy === 'patients' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Patients
-            </button>
-            <button
-              onClick={() => setSortBy('revenue')}
-              className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                sortBy === 'revenue' ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Revenue
-            </button>
+            {(['patients', 'revenue'] as SortBy[]).map(mode => (
+              <button
+                key={mode}
+                onClick={() => setSortBy(mode)}
+                className={`relative px-2.5 py-1 rounded-md font-medium transition-colors ${
+                  sortBy === mode ? 'text-slate-900 font-semibold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="relative z-10 capitalize">{mode}</span>
+                {sortBy === mode && (
+                  <motion.div
+                    layoutId="doctorSortBadge"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    className="absolute inset-0 bg-white rounded-md shadow-2xs z-0"
+                  />
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Bar List */}
-      <div className="space-y-3.5 mt-4">
-        {sortedData.map(doc => {
-          const isSelected = selectedDoctorId === doc.doctorID;
-          const patientPercent = (doc.patientCount / maxPatients) * 100;
-          const revenuePercent = (doc.totalRevenue / maxRevenue) * 100;
-          const displayPercent = sortBy === 'revenue' ? revenuePercent : patientPercent;
+      {/* Bar List with smooth animated layout reordering */}
+      <motion.div layout className="space-y-3.5 mt-4">
+        <AnimatePresence>
+          {sortedData.map(doc => {
+            const isSelected = selectedDoctorId === doc.doctorID;
+            const patientPercent = (doc.patientCount / maxPatients) * 100;
+            const revenuePercent = (doc.totalRevenue / maxRevenue) * 100;
+            const displayPercent = sortBy === 'revenue' ? revenuePercent : patientPercent;
 
-          return (
-            <div
-              key={doc.doctorID}
-              onClick={() => onSelectDoctor(isSelected ? null : doc.doctorID)}
-              className={`group cursor-pointer p-2.5 rounded-xl transition-all duration-150 ${
-                isSelected
-                  ? 'bg-emerald-50/90 border border-emerald-300 ring-2 ring-emerald-400/20 shadow-xs'
-                  : 'hover:bg-slate-50/80 border border-transparent hover:border-slate-200'
-              }`}
-            >
-              {/* Doctor details and counts */}
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold text-slate-900 truncate">{doc.fullName}</span>
-                  <span className="text-[11px] text-slate-400 hidden sm:inline">·</span>
-                  <span className="text-[11px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium truncate">
-                    {doc.specialization}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
-                    {doc.experienceYears}y exp
-                  </span>
+            return (
+              <motion.div
+                layout
+                key={doc.doctorID}
+                onClick={() => onSelectDoctor(isSelected ? null : doc.doctorID)}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className={`group cursor-pointer p-2.5 rounded-xl transition-colors duration-150 ${
+                  isSelected
+                    ? 'bg-emerald-50/90 border border-emerald-300 ring-2 ring-emerald-400/20 shadow-xs'
+                    : 'hover:bg-slate-50/80 border border-transparent hover:border-slate-200'
+                }`}
+              >
+                {/* Doctor details and counts */}
+                <div className="flex items-center justify-between text-xs mb-1.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-semibold text-slate-900 truncate">{doc.fullName}</span>
+                    <span className="text-[11px] text-slate-400 hidden sm:inline">·</span>
+                    <span className="text-[11px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium truncate">
+                      {doc.specialization}
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
+                      {doc.experienceYears}y exp
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 shrink-0 font-mono">
+                    <span className="text-slate-500 text-[11px] hidden sm:inline">
+                      ${doc.totalRevenue.toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                    </span>
+                    <span className="font-bold text-slate-900 tabular-nums text-xs">
+                      {doc.patientCount} <span className="text-[10px] font-normal text-slate-500 font-sans">pts</span>
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0 font-mono">
-                  <span className="text-slate-500 text-[11px] hidden sm:inline">
-                    ${doc.totalRevenue.toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                  </span>
-                  <span className="font-bold text-slate-900 tabular-nums text-xs">
-                    {doc.patientCount} <span className="text-[10px] font-normal text-slate-500 font-sans">pts</span>
-                  </span>
+                {/* Progress Bar Track with Motion Width animation */}
+                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 relative">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.max(4, displayPercent)}%` }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    className={`h-full rounded-full ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-xs'
+                        : 'bg-gradient-to-r from-emerald-500 to-emerald-400 group-hover:from-emerald-600 group-hover:to-teal-500'
+                    }`}
+                  />
                 </div>
-              </div>
-
-              {/* Progress Bar Track */}
-              <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 relative">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ease-out ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-xs'
-                      : 'bg-gradient-to-r from-emerald-500 to-emerald-400 group-hover:from-emerald-600 group-hover:to-teal-500'
-                  }`}
-                  style={{ width: `${Math.max(4, displayPercent)}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
 
       {/* Footer instruction note */}
       <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
         <span>Click any physician to isolate their cases in the ledger</span>
         <span className="font-mono">{sortedData.length} active physicians</span>
       </div>
-    </div>
+    </motion.div>
   );
 };

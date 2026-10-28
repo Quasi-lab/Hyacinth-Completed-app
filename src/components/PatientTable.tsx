@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { JoinedPatientRecord } from '../types/database';
 import { Search, ChevronLeft, ChevronRight, Eye, Filter, ArrowUpDown } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface Props {
   records: JoinedPatientRecord[];
@@ -71,7 +72,12 @@ export const PatientTable: React.FC<Props> = ({
   const hasActiveFilters = selectedDoctorId !== null || selectedAffliction !== null || roomFilter !== 'ALL' || searchQuery !== '';
 
   return (
-    <div className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 transition-all duration-300 hover:shadow-md"
+    >
       {/* Title & Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-emerald-50">
         <div>
@@ -223,6 +229,6 @@ export const PatientTable: React.FC<Props> = ({
           </button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

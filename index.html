@@ -12,6 +12,68 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        if (typeof window !== 'undefined' && window.WebSocket) {
+          var OriginalWebSocket = window.WebSocket;
+          function ViteMockWebSocket(url, protocols) {
+            var target = document.createDocumentFragment();
+            this.url = url;
+            this.protocols = protocols;
+            this.readyState = 1; // WebSocket.OPEN
+            this.OPEN = 1;
+            this.CONNECTING = 0;
+            this.CLOSING = 2;
+            this.CLOSED = 3;
+            this.binaryType = 'blob';
+            this.bufferedAmount = 0;
+            this.extensions = '';
+            this.protocol = Array.isArray(protocols) ? protocols[0] || '' : (protocols || '');
+            this.addEventListener = target.addEventListener.bind(target);
+            this.removeEventListener = target.removeEventListener.bind(target);
+            this.dispatchEvent = target.dispatchEvent.bind(target);
+            this.send = function() {};
+            this.close = function() {};
+          }
+          ViteMockWebSocket.CONNECTING = 0;
+          ViteMockWebSocket.OPEN = 1;
+          ViteMockWebSocket.CLOSING = 2;
+          ViteMockWebSocket.CLOSED = 3;
+
+          window.WebSocket = function(url, protocols) {
+            var isViteHmr =
+              protocols === 'vite-hmr' ||
+              (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1) ||
+              (typeof url === 'string' && url.indexOf('token=') !== -1 && url.indexOf('vite') !== -1);
+            if (isViteHmr) {
+              return new ViteMockWebSocket(url, protocols);
+            }
+            return new OriginalWebSocket(url, protocols);
+          };
+          window.WebSocket.CONNECTING = 0;
+          window.WebSocket.OPEN = 1;
+          window.WebSocket.CLOSING = 2;
+          window.WebSocket.CLOSED = 3;
+          window.WebSocket.prototype = OriginalWebSocket.prototype;
+        }
+
+        window.addEventListener('unhandledrejection', function(e) {
+          if (e.reason) {
+            var msg = (e.reason.message || e.reason).toString();
+            if (msg.indexOf('WebSocket') !== -1 || msg.indexOf('vite') !== -1 || msg.indexOf('transport') !== -1) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }
+        });
+        window.addEventListener('error', function(e) {
+          if (e.message && (e.message.indexOf('WebSocket') !== -1 || e.message.indexOf('createWebSocketModuleRunnerTransport') !== -1)) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        });
+      })();
+    </script>
   </head>
   <body class="bg-[#F8FAFC] text-slate-800 antialiased selection:bg-emerald-100 selection:text-emerald-900 min-h-screen">
     <div id="root"></div>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { TimelinePoint } from '../types/database';
-import { Calendar, TrendingUp, Layers } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Props {
   data: TimelinePoint[];
@@ -61,7 +62,6 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
     const max = Math.max(...values, 1000);
     const min = 0;
 
-    // Nice round tick values
     const ticksCount = 5;
     const tickStep = max / ticksCount;
     const ticks = Array.from({ length: ticksCount + 1 }, (_, i) => Math.round(i * tickStep));
@@ -78,7 +78,7 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
       return { points: pts, maxVal: max, minVal: min, pathD: d, areaD: '', yTicks: ticks };
     }
 
-    // Generate smooth Bézier or straight path
+    // Generate smooth Bézier curve
     const dStr = pts.reduce((acc, curr, idx, arr) => {
       if (idx === 0) return `M ${curr.x} ${curr.y}`;
       const prev = arr[idx - 1];
@@ -109,7 +109,12 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
   const activePoint = hoverIndex !== null && points[hoverIndex] ? points[hoverIndex] : null;
 
   return (
-    <div className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 relative">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 relative transition-all duration-300 hover:shadow-md"
+    >
       {/* Header and Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-50">
         <div>
@@ -126,24 +131,26 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
 
         {/* Filters and View toggles */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Mode Switch */}
+          {/* Mode Switch with smooth layout sliding */}
           <div className="flex items-center bg-emerald-50/70 p-0.5 rounded-lg border border-emerald-100 text-xs">
-            <button
-              onClick={() => setViewMode('daily')}
-              className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                viewMode === 'daily' ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Daily Cost
-            </button>
-            <button
-              onClick={() => setViewMode('cumulative')}
-              className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                viewMode === 'cumulative' ? 'bg-white text-emerald-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              Cumulative
-            </button>
+            {(['daily', 'cumulative'] as ViewMode[]).map(mode => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`relative px-2.5 py-1 rounded-md font-medium transition-colors ${
+                  viewMode === mode ? 'text-emerald-950 font-semibold' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <span className="relative z-10 capitalize">{mode}</span>
+                {viewMode === mode && (
+                  <motion.div
+                    layoutId="viewModeBadge"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    className="absolute inset-0 bg-white rounded-md shadow-2xs z-0"
+                  />
+                )}
+              </button>
+            ))}
           </div>
 
           {/* Time Window Buttons */}
@@ -152,11 +159,20 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-2.5 py-1 rounded-md font-medium transition-all ${
-                  period === p ? 'bg-white text-slate-900 shadow-xs font-semibold' : 'text-slate-600 hover:text-slate-900'
+                className={`relative px-2.5 py-1 rounded-md font-medium transition-colors ${
+                  period === p ? 'text-slate-900 font-semibold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                {p === 'ALL' ? 'All Time' : p === '30D' ? 'Last 30D' : p}
+                <span className="relative z-10">
+                  {p === 'ALL' ? 'All Time' : p === '30D' ? 'Last 30D' : p}
+                </span>
+                {period === p && (
+                  <motion.div
+                    layoutId="periodBadge"
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                    className="absolute inset-0 bg-white rounded-md shadow-2xs z-0"
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -165,9 +181,15 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
 
       {/* Metric highlight banner */}
       <div className="flex items-baseline gap-4 mt-3 mb-2">
-        <div className="text-2xl font-bold font-mono tabular-nums text-slate-900">
+        <motion.div
+          key={`${period}-${viewMode}`}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2 }}
+          className="text-2xl font-bold font-mono tabular-nums text-slate-900"
+        >
           ${currentTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </div>
+        </motion.div>
         <div className="text-xs text-slate-500">
           {viewMode === 'cumulative' ? 'Total Period Gross' : `Sum over ${filteredData.length} active billing days`}
         </div>
@@ -219,11 +241,24 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
           })}
 
           {/* Shaded Area Fill */}
-          {areaD && <path d={areaD} fill="url(#financialGradient)" />}
+          {areaD && (
+            <motion.path
+              key={`area-${period}-${viewMode}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              d={areaD}
+              fill="url(#financialGradient)"
+            />
+          )}
 
-          {/* Stroke Line */}
+          {/* Stroke Line with smooth path animation */}
           {pathD && (
-            <path
+            <motion.path
+              key={`path-${period}-${viewMode}`}
+              initial={{ pathLength: 0, opacity: 0.6 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
               d={pathD}
               fill="none"
               stroke="url(#strokeGradient)"
@@ -254,7 +289,7 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
                 );
               })}
 
-          {/* Interactive Voronoi / Hit testing rectangles */}
+          {/* Hit testing rectangles */}
           {points.map((pt, idx) => {
             const prevX = idx > 0 ? (points[idx - 1].x + pt.x) / 2 : padding.left;
             const nextX = idx < points.length - 1 ? (pt.x + points[idx + 1].x) / 2 : width - padding.right;
@@ -295,31 +330,37 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
           )}
         </svg>
 
-        {/* Hover Tooltip Card */}
-        {activePoint && (
-          <div
-            className="absolute pointer-events-none transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white text-xs py-2 px-3 rounded-lg shadow-lg border border-slate-700/50 z-20"
-            style={{
-              left: `${(activePoint.x / width) * 100}%`,
-              top: `${Math.max(10, (activePoint.y / height) * 100 - 25)}%`,
-            }}
-          >
-            <div className="font-mono text-emerald-300 font-semibold mb-0.5">{activePoint.data.date}</div>
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-slate-300">{viewMode === 'cumulative' ? 'Cumulative:' : 'Daily Billed:'}</span>
-              <span className="font-mono font-bold text-white tabular-nums">
-                ${activePoint.data.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-            {viewMode === 'daily' && (
-              <div className="flex items-center justify-between gap-4 text-[11px] text-slate-400 mt-0.5">
-                <span>Admissions:</span>
-                <span className="font-mono font-medium">{activePoint.data.admissions} patients</span>
+        {/* Hover Tooltip Card with Motion fade */}
+        <AnimatePresence>
+          {activePoint && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="absolute pointer-events-none transform -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white text-xs py-2 px-3 rounded-lg shadow-lg border border-slate-700/50 z-20"
+              style={{
+                left: `${(activePoint.x / width) * 100}%`,
+                top: `${Math.max(10, (activePoint.y / height) * 100 - 25)}%`,
+              }}
+            >
+              <div className="font-mono text-emerald-300 font-semibold mb-0.5">{activePoint.data.date}</div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-slate-300">{viewMode === 'cumulative' ? 'Cumulative:' : 'Daily Billed:'}</span>
+                <span className="font-mono font-bold text-white tabular-nums">
+                  ${activePoint.data.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
               </div>
-            )}
-          </div>
-        )}
+              {viewMode === 'daily' && (
+                <div className="flex items-center justify-between gap-4 text-[11px] text-slate-400 mt-0.5">
+                  <span>Admissions:</span>
+                  <span className="font-mono font-medium">{activePoint.data.admissions} patients</span>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
 };
