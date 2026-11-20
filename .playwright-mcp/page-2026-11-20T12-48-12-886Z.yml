@@ -1,0 +1,558 @@
+- generic [ref=f1e3]:
+  - region "See the whole clinic. One live view." [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e6]: Hyacinth Clinic · Clinical Intelligence
+      - heading "See the whole clinic. One live view." [level=1] [ref=f1e8]
+      - paragraph [ref=f1e9]: Admissions, physicians, ward capacity, and billing — unified into one real-time analytics dashboard built on the clinic's star schema.
+      - generic [ref=f1e10]:
+        - button "Open the dashboard" [active] [ref=f1e11]
+        - generic [ref=f1e14]: 5 dimensions · real-time sync · 8 specialties
+      - button "Scroll to the dashboard" [ref=f1e16]:
+        - generic [ref=f1e17]: Scroll to explore
+  - generic [ref=f1e20]:
+    - banner [ref=f1e21]:
+      - generic [ref=f1e22]:
+        - generic [ref=f1e23]:
+          - generic [ref=f1e24]:
+            - generic [ref=f1e25] [cursor=pointer]: H
+            - link "Hyacinth Clinic" [ref=f1e27] [cursor=pointer]:
+              - /url: "#overview"
+          - navigation [ref=f1e28]:
+            - button "Overview" [ref=f1e29]
+            - button "Financials" [ref=f1e31]
+            - button "Physicians" [ref=f1e32]
+            - button "Afflictions" [ref=f1e33]
+            - button "Instruments" [ref=f1e34]
+            - button "Records" [ref=f1e35]
+          - button "Log" [ref=f1e37]
+        - generic [ref=f1e40]:
+          - generic [ref=f1e41]:
+            - generic [ref=f1e42]: Supabase REST Live
+            - generic [ref=f1e45]: ·
+            - generic [ref=f1e46]: "Synced: 8:47:49 PM"
+          - generic [ref=f1e47]:
+            - generic [ref=f1e48]:
+              - generic [ref=f1e49]: "Auto:"
+              - combobox "Auto-refresh interval" [ref=f1e50]:
+                - option "Manual"
+                - option "15s"
+                - option "30s" [selected]
+                - option "60s"
+            - button "Sync" [ref=f1e51]
+            - button "Schema" [ref=f1e58]
+    - main [ref=f1e64]:
+      - generic [ref=f1e87]:
+        - generic [ref=f1e89]:
+          - generic [ref=f1e91]:
+            - generic [ref=f1e92]: Executive Operational Briefing · Clinical Intelligence Architecture
+            - heading "Hyacinth Clinic Operations & Financial Analytics" [level=1] [ref=f1e95]
+            - paragraph [ref=f1e96]:
+              - text: Welcome to the centralized management ecosystem for
+              - strong [ref=f1e97]: Hyacinth Clinic
+              - text: . This real-time platform unifies the clinic's transactional fact admissions with multidimensional clinical registries—integrating patient demographics, physician specialties, nursing ward allocations, room bed capacities, and itemized billing ledgers into actionable operational intelligence.
+            - paragraph [ref=f1e98]: By transforming raw healthcare records into live visual metrics, Hyacinth Clinic ensures patient-centered care delivery, transparent billing governance, optimized ward throughput, and long-term fiscal resilience.
+          - generic [ref=f1e99]:
+            - generic [ref=f1e105]:
+              - heading "The 5W's and H Framework" [level=2] [ref=f1e106]
+              - paragraph [ref=f1e107]: System architecture, purpose, operational timeline, and execution methodology
+            - generic [ref=f1e108]:
+              - generic [ref=f1e109]:
+                - heading "Who Is Involved" [level=3] [ref=f1e116]
+                - paragraph [ref=f1e117]: Medical directors, attending physicians across 8 clinical specialties, supervising ward nurses, financial controllers, and clinic admissions coordinators orchestrating inpatient and outpatient journeys.
+              - generic [ref=f1e118]:
+                - heading "What It Delivers" [level=3] [ref=f1e125]
+                - paragraph [ref=f1e126]:
+                  - text: A comprehensive relational star-schema warehouse (
+                  - code [ref=f1e127]: PatientRecords
+                  - text: fact table joined with 5 dimensional tables) paired with live financial cost timelines, doctor caseload metrics, and affliction distributions.
+              - generic [ref=f1e128]:
+                - heading "Where It Operates" [level=3] [ref=f1e134]
+                - paragraph [ref=f1e135]: "Implemented across Hyacinth Clinic's specialized departments: ICU Suites, Standard Patient Rooms, Semi-Private facilities, General Wards, emergency triage stations, and central billing administration."
+              - generic [ref=f1e136]:
+                - heading "When It Updates" [level=3] [ref=f1e142]
+                - paragraph [ref=f1e143]: Operates in real time with continuous Supabase REST polling, configurable automatic refresh intervals (15s, 30s, 60s, or manual sync), and instant updates upon logging clinical admissions.
+              - generic [ref=f1e144]:
+                - heading "Why It Matters" [level=3] [ref=f1e151]
+                - paragraph [ref=f1e152]: Modern clinics struggle with isolated billing records and bottlenecked bed allocations. This dashboard bridges financial metrics with clinical workflow, preventing physician burnout and eliminating revenue leakage.
+              - generic [ref=f1e153]:
+                - heading "How It Functions" [level=3] [ref=f1e159]
+                - paragraph [ref=f1e160]:
+                  - text: Powered by a full-stack React SPA running on Express with direct Supabase REST endpoints, client-side
+                  - code [ref=f1e161]: "@supabase/supabase-js"
+                  - text: integration, and interactive custom SVG charts.
+          - generic [ref=f1e162]:
+            - generic [ref=f1e168]:
+              - heading "Key Beneficiaries & Impact" [level=2] [ref=f1e169]
+              - paragraph [ref=f1e170]: Measurable value delivered to patients, medical staff, and executive leadership
+            - generic [ref=f1e171]:
+              - generic [ref=f1e172]:
+                - generic [ref=f1e173]: Patients & Families
+                - paragraph [ref=f1e178]: Transparent, itemized billing statements with zero surprise charges, reduced intake wait times, and verified bed availability.
+              - generic [ref=f1e179]:
+                - generic [ref=f1e180]: Attending Physicians
+                - paragraph [ref=f1e186]: Real-time caseload monitoring, specialty volume analytics, and streamlined handoffs between doctors and supervising nurses.
+              - generic [ref=f1e187]:
+                - generic [ref=f1e188]: Ward & Nursing Teams
+                - paragraph [ref=f1e193]: Instant visibility into room class occupancy, active patient distributions, and automated clinical area assignments.
+              - generic [ref=f1e194]:
+                - generic [ref=f1e195]: Executive & Finance
+                - paragraph [ref=f1e200]: Live fiscal metrics (Total Gross Revenue, Average Visit Cost, Bed Utilization) with historical trend modeling to optimize hospital budgeting.
+        - generic [ref=f1e202]:
+          - generic [ref=f1e203]:
+            - generic [ref=f1e204]: Total Gross Revenue
+            - generic [ref=f1e209]:
+              - generic [ref=f1e210]: $2,300,100.00
+              - generic [ref=f1e211]:
+                - generic [ref=f1e212]: 100% Star-Schema Synced
+                - generic [ref=f1e213]: ·
+                - generic [ref=f1e214]: 1000 bills
+          - generic [ref=f1e215]:
+            - generic [ref=f1e216]: Average Bill / Visit
+            - generic [ref=f1e221]:
+              - generic [ref=f1e222]: $2,300.10
+              - generic [ref=f1e223]: Per inpatient admission
+          - generic [ref=f1e225]:
+            - generic [ref=f1e226]: Patient Admissions
+            - generic [ref=f1e234]:
+              - generic [ref=f1e235]: 1,000
+              - generic [ref=f1e236]: Across 8 attending physicians
+          - generic [ref=f1e238]:
+            - generic [ref=f1e239]: Room Bed Utilization
+            - generic [ref=f1e245]:
+              - generic [ref=f1e246]: 15.3%
+              - generic [ref=f1e247]:
+                - generic [ref=f1e248]: 50 beds free
+                - generic [ref=f1e249]: /
+                - generic [ref=f1e250]: 59 total beds
+        - generic [ref=f1e252]:
+          - generic [ref=f1e253]:
+            - generic [ref=f1e260]:
+              - heading "Financial Costs Over Time" [level=3] [ref=f1e261]
+              - paragraph [ref=f1e262]: Timeline analysis of clinical and inpatient billing charges
+            - generic [ref=f1e263]:
+              - generic [ref=f1e264]:
+                - button "daily" [ref=f1e265]
+                - button "cumulative" [ref=f1e267]
+              - generic [ref=f1e268]:
+                - button "All Time" [ref=f1e269]
+                - button "Q1" [ref=f1e271]
+                - button "Q2" [ref=f1e272]
+                - button "Q3" [ref=f1e273]
+                - button "Last 30D" [ref=f1e274]
+          - generic [ref=f1e275]:
+            - generic [ref=f1e276]: $2,300,100.00
+            - generic [ref=f1e277]: Sum over 167 active billing days
+          - img [ref=f1e279]:
+            - generic [ref=f1e280]: $0
+            - generic [ref=f1e282]: $7k
+            - generic [ref=f1e284]: $15k
+            - generic [ref=f1e286]: $22k
+            - generic [ref=f1e288]: $29k
+            - generic [ref=f1e290]: $37k
+            - generic [ref=f1e294]: 03-27
+            - generic [ref=f1e295]: 05-07
+            - generic [ref=f1e296]: 06-19
+            - generic [ref=f1e297]: 08-01
+            - generic [ref=f1e298]: 10-29
+        - generic [ref=f1e466]:
+          - generic [ref=f1e468]:
+            - generic [ref=f1e469]:
+              - generic [ref=f1e476]:
+                - heading "Doctor Patient Caseload" [level=3] [ref=f1e477]
+                - paragraph [ref=f1e478]: Distribution of admitted patients across clinic physicians
+              - generic [ref=f1e480]:
+                - button "patients" [ref=f1e481]
+                - button "revenue" [ref=f1e483]
+            - generic [ref=f1e484]:
+              - generic [ref=f1e486] [cursor=pointer]:
+                - generic [ref=f1e487]:
+                  - generic [ref=f1e488]: Dr. Robert Gomez
+                  - generic [ref=f1e489]: ·
+                  - generic [ref=f1e490]: General Practice
+                  - generic [ref=f1e491]: 15y exp
+                - generic [ref=f1e492]:
+                  - generic [ref=f1e493]: $517,100
+                  - generic [ref=f1e494]: 249 pts
+              - generic [ref=f1e498] [cursor=pointer]:
+                - generic [ref=f1e499]:
+                  - generic [ref=f1e500]: Dr. Alice Guerrero
+                  - generic [ref=f1e501]: ·
+                  - generic [ref=f1e502]: Cardiology
+                  - generic [ref=f1e503]: 12y exp
+                - generic [ref=f1e504]:
+                  - generic [ref=f1e505]: $553,300
+                  - generic [ref=f1e506]: 245 pts
+              - generic [ref=f1e510] [cursor=pointer]:
+                - generic [ref=f1e511]:
+                  - generic [ref=f1e512]: Dr. Michael Reyes
+                  - generic [ref=f1e513]: ·
+                  - generic [ref=f1e514]: Cardiology
+                  - generic [ref=f1e515]: 8y exp
+                - generic [ref=f1e516]:
+                  - generic [ref=f1e517]: $216,000
+                  - generic [ref=f1e518]: 91 pts
+              - generic [ref=f1e522] [cursor=pointer]:
+                - generic [ref=f1e523]:
+                  - generic [ref=f1e524]: Dr. Elizabeth Ramos
+                  - generic [ref=f1e525]: ·
+                  - generic [ref=f1e526]: General Surgery
+                  - generic [ref=f1e527]: 7y exp
+                - generic [ref=f1e528]:
+                  - generic [ref=f1e529]: $222,500
+                  - generic [ref=f1e530]: 88 pts
+              - generic [ref=f1e534] [cursor=pointer]:
+                - generic [ref=f1e535]:
+                  - generic [ref=f1e536]: Dr. Jennifer Garcia
+                  - generic [ref=f1e537]: ·
+                  - generic [ref=f1e538]: Emergency Medicine
+                  - generic [ref=f1e539]: 10y exp
+                - generic [ref=f1e540]:
+                  - generic [ref=f1e541]: $202,400
+                  - generic [ref=f1e542]: 86 pts
+              - generic [ref=f1e546] [cursor=pointer]:
+                - generic [ref=f1e547]:
+                  - generic [ref=f1e548]: Dr. Anthony Mendoza
+                  - generic [ref=f1e549]: ·
+                  - generic [ref=f1e550]: Infectious Disease
+                  - generic [ref=f1e551]: 6y exp
+                - generic [ref=f1e552]:
+                  - generic [ref=f1e553]: $196,100
+                  - generic [ref=f1e554]: 85 pts
+              - generic [ref=f1e558] [cursor=pointer]:
+                - generic [ref=f1e559]:
+                  - generic [ref=f1e560]: Dr. Robert Cruz
+                  - generic [ref=f1e561]: ·
+                  - generic [ref=f1e562]: Internal Medicine
+                  - generic [ref=f1e563]: 11y exp
+                - generic [ref=f1e564]:
+                  - generic [ref=f1e565]: $207,700
+                  - generic [ref=f1e566]: 83 pts
+              - generic [ref=f1e570] [cursor=pointer]:
+                - generic [ref=f1e571]:
+                  - generic [ref=f1e572]: Dr. Patricia Santos
+                  - generic [ref=f1e573]: ·
+                  - generic [ref=f1e574]: Pediatrics
+                  - generic [ref=f1e575]: 9y exp
+                - generic [ref=f1e576]:
+                  - generic [ref=f1e577]: $185,000
+                  - generic [ref=f1e578]: 73 pts
+            - generic [ref=f1e581]:
+              - generic [ref=f1e582]: Click any physician to isolate their cases in the ledger
+              - generic [ref=f1e583]: 8 active physicians
+          - generic [ref=f1e585]:
+            - generic [ref=f1e591]:
+              - heading "Diseases & Clinical Afflictions" [level=3] [ref=f1e592]
+              - paragraph [ref=f1e593]: Distribution of patient diagnoses and clinical admissions
+            - generic [ref=f1e594]:
+              - img [ref=f1e596]:
+                - generic [ref=f1e597] [cursor=pointer]
+                - generic [ref=f1e598] [cursor=pointer]
+                - generic [ref=f1e599] [cursor=pointer]
+                - generic [ref=f1e600] [cursor=pointer]
+                - generic [ref=f1e601] [cursor=pointer]
+                - generic [ref=f1e602] [cursor=pointer]
+                - generic [ref=f1e603] [cursor=pointer]
+                - generic [ref=f1e604] [cursor=pointer]
+                - generic [ref=f1e605] [cursor=pointer]
+                - generic [ref=f1e607]: Total Cases
+                - generic [ref=f1e608]: "1000"
+              - generic [ref=f1e609]:
+                - generic [ref=f1e610] [cursor=pointer]:
+                  - generic [ref=f1e611]: Cardiovascular Conditions
+                  - generic [ref=f1e614]:
+                    - generic [ref=f1e615]: 365 cases
+                    - generic [ref=f1e616]: 36.5%
+                - generic [ref=f1e617] [cursor=pointer]:
+                  - generic [ref=f1e618]: Trauma & Acute Surgery
+                  - generic [ref=f1e621]:
+                    - generic [ref=f1e622]: 120 cases
+                    - generic [ref=f1e623]: 12.0%
+                - generic [ref=f1e624] [cursor=pointer]:
+                  - generic [ref=f1e625]: Preventive & General Medicine
+                  - generic [ref=f1e628]:
+                    - generic [ref=f1e629]: 113 cases
+                    - generic [ref=f1e630]: 11.3%
+                - generic [ref=f1e631] [cursor=pointer]:
+                  - generic [ref=f1e632]: Respiratory & Pulmonary
+                  - generic [ref=f1e635]:
+                    - generic [ref=f1e636]: 109 cases
+                    - generic [ref=f1e637]: 10.9%
+                - generic [ref=f1e638] [cursor=pointer]:
+                  - generic [ref=f1e639]: Infectious & Metabolic
+                  - generic [ref=f1e642]:
+                    - generic [ref=f1e643]: 103 cases
+                    - generic [ref=f1e644]: 10.3%
+                - generic [ref=f1e645] [cursor=pointer]:
+                  - generic [ref=f1e646]: Neurological & Musculoskeletal
+                  - generic [ref=f1e649]:
+                    - generic [ref=f1e650]: 92 cases
+                    - generic [ref=f1e651]: 9.2%
+                - generic [ref=f1e652] [cursor=pointer]:
+                  - generic [ref=f1e653]: Renal & Urological
+                  - generic [ref=f1e656]:
+                    - generic [ref=f1e657]: 65 cases
+                    - generic [ref=f1e658]: 6.5%
+                - generic [ref=f1e659] [cursor=pointer]:
+                  - generic [ref=f1e660]: General Clinical Diagnostic
+                  - generic [ref=f1e663]:
+                    - generic [ref=f1e664]: 24 cases
+                    - generic [ref=f1e665]: 2.4%
+                - generic [ref=f1e666] [cursor=pointer]:
+                  - generic [ref=f1e667]: Pediatric Care
+                  - generic [ref=f1e670]:
+                    - generic [ref=f1e671]: 9 cases
+                    - generic [ref=f1e672]: 0.9%
+            - generic [ref=f1e673]:
+              - generic [ref=f1e674]: Click any disease slice to filter ledger records
+              - generic [ref=f1e675]: 9 clinical categories
+        - generic [ref=f1e677]:
+          - generic [ref=f1e678]:
+            - generic [ref=f1e679]:
+              - heading "Patient Records & Billing Ledger" [level=3] [ref=f1e680]
+              - paragraph [ref=f1e681]: Live joined star-schema fact records with dimensional details
+            - generic [ref=f1e682]:
+              - textbox "Search patient, doctor, bill..." [ref=f1e687]
+              - combobox "Filter by room class" [ref=f1e688]:
+                - option "All Rooms" [selected]
+                - option "Standard"
+                - option "ICU Suite"
+                - option "Semi-Private"
+                - option "General Ward"
+          - table [ref=f1e690]:
+            - rowgroup [ref=f1e691]:
+              - row [ref=f1e692]:
+                - 'columnheader "Rec #" [ref=f1e693]'
+                - columnheader "Admission" [ref=f1e694]
+                - columnheader "Patient" [ref=f1e695]
+                - columnheader "Attending Doctor" [ref=f1e696]
+                - columnheader "Room" [ref=f1e697]
+                - columnheader "Procedure / Affliction" [ref=f1e698]
+                - columnheader "Cost" [ref=f1e699]
+                - columnheader "Action" [ref=f1e700]
+            - rowgroup [ref=f1e701]:
+              - row [ref=f1e702] [cursor=pointer]:
+                - cell "#1504" [ref=f1e703]
+                - cell "2026-10-29" [ref=f1e704]
+                - cell "Anonymous ID:" [ref=f1e705]:
+                  - generic [ref=f1e706]: Anonymous
+                  - generic [ref=f1e707]: "ID:"
+                - cell "Dr. Alice Guerrero Cardiology" [ref=f1e708]:
+                  - generic [ref=f1e709]: Dr. Alice Guerrero
+                  - generic [ref=f1e710]: Cardiology
+                - cell "#301(Standard)" [ref=f1e711]:
+                  - generic [ref=f1e712]: "#301"
+                  - generic [ref=f1e713]: (Standard)
+                - cell "Consultation" [ref=f1e714]
+                - cell "$0.00" [ref=f1e716]
+                - cell [ref=f1e717]:
+                  - button "View Full Itemized Case" [ref=f1e718]
+              - row [ref=f1e722] [cursor=pointer]:
+                - cell "#1503" [ref=f1e723]
+                - cell "2026-10-28" [ref=f1e724]
+                - cell "Anonymous ID:" [ref=f1e725]:
+                  - generic [ref=f1e726]: Anonymous
+                  - generic [ref=f1e727]: "ID:"
+                - cell "Dr. Patricia Santos Pediatrics" [ref=f1e728]:
+                  - generic [ref=f1e729]: Dr. Patricia Santos
+                  - generic [ref=f1e730]: Pediatrics
+                - cell "#110(Private)" [ref=f1e731]:
+                  - generic [ref=f1e732]: "#110"
+                  - generic [ref=f1e733]: (Private)
+                - cell "Consultation" [ref=f1e734]
+                - cell "$0.00" [ref=f1e736]
+                - cell [ref=f1e737]:
+                  - button "View Full Itemized Case" [ref=f1e738]
+              - row [ref=f1e742] [cursor=pointer]:
+                - cell "#1502" [ref=f1e743]
+                - cell "2026-10-28" [ref=f1e744]
+                - cell "Anonymous ID:" [ref=f1e745]:
+                  - generic [ref=f1e746]: Anonymous
+                  - generic [ref=f1e747]: "ID:"
+                - cell "Dr. Anthony Mendoza Infectious Disease" [ref=f1e748]:
+                  - generic [ref=f1e749]: Dr. Anthony Mendoza
+                  - generic [ref=f1e750]: Infectious Disease
+                - cell "#107(Private)" [ref=f1e751]:
+                  - generic [ref=f1e752]: "#107"
+                  - generic [ref=f1e753]: (Private)
+                - cell "Consultation" [ref=f1e754]
+                - cell "$0.00" [ref=f1e756]
+                - cell [ref=f1e757]:
+                  - button "View Full Itemized Case" [ref=f1e758]
+              - row [ref=f1e762] [cursor=pointer]:
+                - cell "#502" [ref=f1e763]
+                - cell "2026-09-15" [ref=f1e764]
+                - 'cell "Carlos Flores ID: 501" [ref=f1e765]':
+                  - generic [ref=f1e766]: Carlos Flores
+                  - generic [ref=f1e767]: "ID: 501"
+                - cell "Dr. Elizabeth Ramos General Surgery" [ref=f1e768]:
+                  - generic [ref=f1e769]: Dr. Elizabeth Ramos
+                  - generic [ref=f1e770]: General Surgery
+                - cell "#101(Private)" [ref=f1e771]:
+                  - generic [ref=f1e772]: "#101"
+                  - generic [ref=f1e773]: (Private)
+                - cell "Comprehensive Blood Test Trauma & Acute Surgery" [ref=f1e774]:
+                  - generic [ref=f1e775]: Comprehensive Blood Test
+                  - generic [ref=f1e776]: Trauma & Acute Surgery
+                - cell "$2,200.00" [ref=f1e777]
+                - cell [ref=f1e778]:
+                  - button "View Full Itemized Case" [ref=f1e779]
+              - row [ref=f1e783] [cursor=pointer]:
+                - cell "#3" [ref=f1e784]
+                - cell "2026-09-15" [ref=f1e785]
+                - 'cell "Mateo Dela Cruz ID: 1" [ref=f1e786]':
+                  - generic [ref=f1e787]: Mateo Dela Cruz
+                  - generic [ref=f1e788]: "ID: 1"
+                - cell "Dr. Robert Gomez General Practice" [ref=f1e789]:
+                  - generic [ref=f1e790]: Dr. Robert Gomez
+                  - generic [ref=f1e791]: General Practice
+                - cell "#303(Ward)" [ref=f1e792]:
+                  - generic [ref=f1e793]: "#303"
+                  - generic [ref=f1e794]: (Ward)
+                - cell "Routine Checkup Fee Preventive & General Medicine" [ref=f1e795]:
+                  - generic [ref=f1e796]: Routine Checkup Fee
+                  - generic [ref=f1e797]: Preventive & General Medicine
+                - cell "$500.00" [ref=f1e798]
+                - cell [ref=f1e799]:
+                  - button "View Full Itemized Case" [ref=f1e800]
+              - row [ref=f1e804] [cursor=pointer]:
+                - cell "#501" [ref=f1e805]
+                - cell "2026-09-11" [ref=f1e806]
+                - 'cell "Matias Torres ID: 500" [ref=f1e807]':
+                  - generic [ref=f1e808]: Matias Torres
+                  - generic [ref=f1e809]: "ID: 500"
+                - cell "Dr. Anthony Mendoza Infectious Disease" [ref=f1e810]:
+                  - generic [ref=f1e811]: Dr. Anthony Mendoza
+                  - generic [ref=f1e812]: Infectious Disease
+                - cell "#112(Semi-Private)" [ref=f1e813]:
+                  - generic [ref=f1e814]: "#112"
+                  - generic [ref=f1e815]: (Semi-Private)
+                - cell "Chest X-Ray Respiratory & Pulmonary" [ref=f1e816]:
+                  - generic [ref=f1e817]: Chest X-Ray
+                  - generic [ref=f1e818]: Respiratory & Pulmonary
+                - cell "$4,400.00" [ref=f1e819]
+                - cell [ref=f1e820]:
+                  - button "View Full Itemized Case" [ref=f1e821]
+              - row [ref=f1e825] [cursor=pointer]:
+                - cell "#1" [ref=f1e826]
+                - cell "2026-09-10" [ref=f1e827]
+                - 'cell "Mateo Dela Cruz ID: 1" [ref=f1e828]':
+                  - generic [ref=f1e829]: Mateo Dela Cruz
+                  - generic [ref=f1e830]: "ID: 1"
+                - cell "Dr. Robert Gomez General Practice" [ref=f1e831]:
+                  - generic [ref=f1e832]: Dr. Robert Gomez
+                  - generic [ref=f1e833]: General Practice
+                - cell "#302(ICU Suite)" [ref=f1e834]:
+                  - generic [ref=f1e835]: "#302"
+                  - generic [ref=f1e836]: (ICU Suite)
+                - cell "Comprehensive Blood Test Infectious & Metabolic" [ref=f1e837]:
+                  - generic [ref=f1e838]: Comprehensive Blood Test
+                  - generic [ref=f1e839]: Infectious & Metabolic
+                - cell "$1,500.00" [ref=f1e840]
+                - cell [ref=f1e841]:
+                  - button "View Full Itemized Case" [ref=f1e842]
+              - row [ref=f1e846] [cursor=pointer]:
+                - cell "#23" [ref=f1e847]
+                - cell "2026-09-07" [ref=f1e848]
+                - 'cell "David Dela Cruz ID: 22" [ref=f1e849]':
+                  - generic [ref=f1e850]: David Dela Cruz
+                  - generic [ref=f1e851]: "ID: 22"
+                - cell "Dr. Robert Cruz Internal Medicine" [ref=f1e852]:
+                  - generic [ref=f1e853]: Dr. Robert Cruz
+                  - generic [ref=f1e854]: Internal Medicine
+                - cell "#112(Semi-Private)" [ref=f1e855]:
+                  - generic [ref=f1e856]: "#112"
+                  - generic [ref=f1e857]: (Semi-Private)
+                - cell "Consultation" [ref=f1e858]
+                - cell "$0.00" [ref=f1e860]
+                - cell [ref=f1e861]:
+                  - button "View Full Itemized Case" [ref=f1e862]
+              - row [ref=f1e866] [cursor=pointer]:
+                - cell "#731" [ref=f1e867]
+                - cell "2026-09-07" [ref=f1e868]
+                - 'cell "Juan Lee ID: 730" [ref=f1e869]':
+                  - generic [ref=f1e870]: Juan Lee
+                  - generic [ref=f1e871]: "ID: 730"
+                - cell "Dr. Alice Guerrero Cardiology" [ref=f1e872]:
+                  - generic [ref=f1e873]: Dr. Alice Guerrero
+                  - generic [ref=f1e874]: Cardiology
+                - cell "#301(Standard)" [ref=f1e875]:
+                  - generic [ref=f1e876]: "#301"
+                  - generic [ref=f1e877]: (Standard)
+                - cell "CT Scan Cardiovascular Conditions" [ref=f1e878]:
+                  - generic [ref=f1e879]: CT Scan
+                  - generic [ref=f1e880]: Cardiovascular Conditions
+                - cell "$1,100.00" [ref=f1e881]
+                - cell [ref=f1e882]:
+                  - button "View Full Itemized Case" [ref=f1e883]
+              - row [ref=f1e887] [cursor=pointer]:
+                - cell "#835" [ref=f1e888]
+                - cell "2026-09-07" [ref=f1e889]
+                - 'cell "David Mendoza ID: 834" [ref=f1e890]':
+                  - generic [ref=f1e891]: David Mendoza
+                  - generic [ref=f1e892]: "ID: 834"
+                - cell "Dr. Robert Gomez General Practice" [ref=f1e893]:
+                  - generic [ref=f1e894]: Dr. Robert Gomez
+                  - generic [ref=f1e895]: General Practice
+                - cell "#103(Ward)" [ref=f1e896]:
+                  - generic [ref=f1e897]: "#103"
+                  - generic [ref=f1e898]: (Ward)
+                - cell "Routine Checkup Preventive & General Medicine" [ref=f1e899]:
+                  - generic [ref=f1e900]: Routine Checkup
+                  - generic [ref=f1e901]: Preventive & General Medicine
+                - cell "$2,100.00" [ref=f1e902]
+                - cell [ref=f1e903]:
+                  - button "View Full Itemized Case" [ref=f1e904]
+              - row [ref=f1e908] [cursor=pointer]:
+                - cell "#735" [ref=f1e909]
+                - cell "2026-09-07" [ref=f1e910]
+                - 'cell "Ben Bautista ID: 734" [ref=f1e911]':
+                  - generic [ref=f1e912]: Ben Bautista
+                  - generic [ref=f1e913]: "ID: 734"
+                - cell "Dr. Robert Gomez General Practice" [ref=f1e914]:
+                  - generic [ref=f1e915]: Dr. Robert Gomez
+                  - generic [ref=f1e916]: General Practice
+                - cell "#103(Ward)" [ref=f1e917]:
+                  - generic [ref=f1e918]: "#103"
+                  - generic [ref=f1e919]: (Ward)
+                - cell "ECG Cardiovascular Conditions" [ref=f1e920]:
+                  - generic [ref=f1e921]: ECG
+                  - generic [ref=f1e922]: Cardiovascular Conditions
+                - cell "$4,100.00" [ref=f1e923]
+                - cell [ref=f1e924]:
+                  - button "View Full Itemized Case" [ref=f1e925]
+              - row [ref=f1e929] [cursor=pointer]:
+                - cell "#1316" [ref=f1e930]
+                - cell "2026-09-07" [ref=f1e931]
+                - cell "Anonymous ID:" [ref=f1e932]:
+                  - generic [ref=f1e933]: Anonymous
+                  - generic [ref=f1e934]: "ID:"
+                - cell "Dr. Alice Guerrero Cardiology" [ref=f1e935]:
+                  - generic [ref=f1e936]: Dr. Alice Guerrero
+                  - generic [ref=f1e937]: Cardiology
+                - cell "#301(Standard)" [ref=f1e938]:
+                  - generic [ref=f1e939]: "#301"
+                  - generic [ref=f1e940]: (Standard)
+                - cell "Consultation" [ref=f1e941]
+                - cell "$0.00" [ref=f1e943]
+                - cell [ref=f1e944]:
+                  - button "View Full Itemized Case" [ref=f1e945]
+          - generic [ref=f1e949]:
+            - generic [ref=f1e950]: Showing 1000 total admissions
+            - generic [ref=f1e951]:
+              - generic [ref=f1e952]: Page 1 of 84
+              - button [disabled] [ref=f1e953]
+              - button [ref=f1e956]
+    - contentinfo [ref=f1e70]:
+      - generic [ref=f1e71]:
+        - generic [ref=f1e72]:
+          - generic [ref=f1e73]: Hyacinth Clinic
+          - generic [ref=f1e74]: ·
+          - generic [ref=f1e75]: Live Star-Schema Hospital Analytics
+        - generic [ref=f1e76]:
+          - generic [ref=f1e77]: PatientRecords Fact · 5 Dimension Tables
+          - generic [ref=f1e78]: ·
+          - button "View Schema Diagram" [ref=f1e79]
+  - button "Open Clinic AI Analyst Chat" [ref=f1e80]:
+    - generic [ref=f1e84]:
+      - generic [ref=f1e85]: Clinic AI Analyst
+      - generic [ref=f1e86]: Ask data & SQL questions
