@@ -37,7 +37,7 @@ export const Header: React.FC<Props> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-30 bg-white/85 backdrop-blur-md border-b border-emerald-100/80 shadow-xs transition-all duration-200">
+    <header className="sticky top-0 z-30 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-emerald-100/80 dark:border-emerald-500/20 shadow-xs transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Strict 3-Zone Top Bar Contract */}
         <div className="flex items-center justify-between gap-4 sm:gap-8 h-16">
@@ -57,14 +57,14 @@ export const Header: React.FC<Props> = ({
                 e.preventDefault();
                 onSelectTab('overview');
               }}
-              className="text-lg font-bold tracking-tight text-slate-900 whitespace-nowrap shrink-0 hover:text-emerald-800 transition-colors"
+              className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100 whitespace-nowrap shrink-0 hover:text-emerald-800 dark:hover:text-emerald-400 transition-colors"
             >
               Hyacinth Clinic
             </a>
           </div>
 
           {/* Zone 2: Desktop Navigation with Animated Sliding Indicator */}
-          <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 relative">
+          <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300 relative">
             {TABS.map(tab => {
               const isActive = activeTab === tab.id;
               return (
@@ -72,7 +72,7 @@ export const Header: React.FC<Props> = ({
                   key={tab.id}
                   onClick={() => onSelectTab(tab.id)}
                   className={`relative px-3.5 py-1.5 rounded-lg transition-colors duration-150 whitespace-nowrap shrink-0 ${
-                    isActive ? 'text-emerald-900 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    isActive ? 'text-emerald-900 dark:text-emerald-300 font-semibold' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
                   <span className="relative z-10">{tab.label}</span>
@@ -80,7 +80,7 @@ export const Header: React.FC<Props> = ({
                     <motion.div
                       layoutId="activeTabBadge"
                       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      className="absolute inset-0 bg-emerald-50 border border-emerald-200/80 rounded-lg shadow-2xs z-0"
+                      className="absolute inset-0 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/30 rounded-lg shadow-2xs z-0"
                     />
                   )}
                 </button>
@@ -104,7 +104,7 @@ export const Header: React.FC<Props> = ({
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+              className="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -120,7 +120,7 @@ export const Header: React.FC<Props> = ({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="md:hidden border-t border-slate-100 py-3 overflow-hidden"
+              className="md:hidden border-t border-slate-100 dark:border-slate-800 py-3 overflow-hidden"
             >
               <div className="grid grid-cols-3 gap-1.5">
                 {TABS.map(tab => (
@@ -132,8 +132,8 @@ export const Header: React.FC<Props> = ({
                     }}
                     className={`py-2 px-3 text-xs font-medium rounded-lg text-center transition-colors ${
                       activeTab === tab.id
-                        ? 'bg-emerald-100/80 text-emerald-900 font-semibold border border-emerald-300'
-                        : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                        ? 'bg-emerald-100/80 dark:bg-emerald-500/15 text-emerald-900 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-500/50'
+                        : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     {tab.label}
@@ -145,9 +145,9 @@ export const Header: React.FC<Props> = ({
         </AnimatePresence>
 
         {/* Secondary Utility / Telemetry Bar below header */}
-        <div className="py-2 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
+        <div className="py-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-emerald-800 font-medium">
+            <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Supabase REST Live</span>
             </div>
@@ -165,7 +165,7 @@ export const Header: React.FC<Props> = ({
                 value={refreshInterval}
                 onChange={e => onChangeInterval(Number(e.target.value))}
                 aria-label="Auto-refresh interval"
-                className="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-md px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs rounded-md px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               >
                 <option value={0}>Manual</option>
                 <option value={15}>15s</option>
@@ -180,17 +180,17 @@ export const Header: React.FC<Props> = ({
               transition={{ duration: 0.3 }}
               onClick={onRefresh}
               disabled={isRefreshing}
-              className="p-1 text-slate-500 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors flex items-center gap-1"
+              className="p-1 text-slate-500 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors flex items-center gap-1"
               title="Refresh Analytics"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-600' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-emerald-600 dark:text-emerald-400' : ''}`} />
               <span className="text-xs">Sync</span>
             </motion.button>
 
             {/* Star Schema Explorer Button */}
             <button
               onClick={onOpenSchema}
-              className="p-1 text-slate-500 hover:text-emerald-700 rounded-md hover:bg-emerald-50 transition-colors flex items-center gap-1"
+              className="p-1 text-slate-500 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors flex items-center gap-1"
               title="Inspect Star Schema Database"
             >
               <Database className="w-3.5 h-3.5" />

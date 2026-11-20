@@ -164,7 +164,7 @@ values
   return (
     <div className="space-y-6">
       {/* Top Banner & Context */}
-      <div className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70">
+      <div className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 dark:border-emerald-500/20">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center shadow-xs">
@@ -172,15 +172,15 @@ values
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                   Clinical Instruments & Equipment
                 </h2>
-                <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
+                <span className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400 font-medium">
                   Supabase Quickstart
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Client-side queries executed via <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-emerald-800">@supabase/supabase-js</code> inside <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-emerald-800">useEffect</code>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Client-side queries executed via <code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-emerald-800 dark:text-emerald-400">@supabase/supabase-js</code> inside <code className="font-mono bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-emerald-800 dark:text-emerald-400">useEffect</code>
               </p>
             </div>
           </div>
@@ -188,7 +188,7 @@ values
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowSqlGuide(!showSqlGuide)}
-              className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors flex items-center gap-1.5"
             >
               <Code2 className="w-3.5 h-3.5" />
               <span>{showSqlGuide ? 'Hide SQL Script' : 'Supabase SQL Guide'}</span>
@@ -197,7 +197,7 @@ values
             <button
               onClick={fetchInstruments}
               disabled={isLoading}
-              className="px-3 py-1.5 text-xs font-medium text-emerald-800 bg-emerald-50 hover:bg-emerald-100 rounded-xl transition-colors flex items-center gap-1.5 border border-emerald-200"
+              className="px-3 py-1.5 text-xs font-medium text-emerald-800 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/15 rounded-xl transition-colors flex items-center gap-1.5 border border-emerald-200 dark:border-emerald-500/30"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               <span>Refresh</span>
@@ -206,19 +206,19 @@ values
         </div>
 
         {/* Connection Status Pill Bar */}
-        <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
+        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
           <div className="flex items-center gap-2">
             <span className="text-slate-400">Target Project:</span>
-            <span className="font-mono text-slate-800 font-medium truncate max-w-xs">{supabaseUrl}</span>
+            <span className="font-mono text-slate-800 dark:text-slate-200 font-medium truncate max-w-xs">{supabaseUrl}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-slate-400">Table:</span>
-            <span className="font-mono text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <span className="font-mono text-emerald-700 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/30">
               public.instruments
             </span>
             {isUsingFallback && (
-              <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded text-[11px] font-medium border border-amber-200">
+              <span className="text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded text-[11px] font-medium border border-amber-200 dark:border-amber-500/30">
                 Preview Mode (Run SQL to connect live)
               </span>
             )}
@@ -236,21 +236,21 @@ values
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
-            <div className="glass-panel rounded-2xl p-5 border border-emerald-200 bg-white/90 shadow-sm relative">
+            <div className="glass-panel rounded-2xl p-5 border border-emerald-200 dark:border-emerald-500/30 bg-white/90 dark:bg-slate-900/90 shadow-sm relative">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Database className="w-4 h-4 text-emerald-700" />
-                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                  <Database className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
                     Run this in Supabase SQL Editor
                   </h4>
                 </div>
                 <button
                   onClick={copyToClipboard}
-                  className="px-3 py-1 text-xs font-medium text-emerald-800 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1 text-xs font-medium text-emerald-800 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/15 hover:bg-emerald-200 dark:hover:bg-emerald-500/25 rounded-lg transition-colors flex items-center gap-1.5"
                 >
                   {copiedSql ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>Copied SQL!</span>
                     </>
                   ) : (
@@ -262,13 +262,13 @@ values
                 </button>
               </div>
 
-              <p className="text-xs text-slate-600 mb-3 leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-300 mb-3 leading-relaxed">
                 Open your Supabase project dashboard at{' '}
                 <a
                   href="https://supabase.com/dashboard/project/cpgomiuqhuwyrzzcozcu/sql"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-emerald-700 font-medium underline inline-flex items-center gap-0.5"
+                  className="text-emerald-700 dark:text-emerald-400 font-medium underline inline-flex items-center gap-0.5"
                 >
                   Supabase SQL Editor <ExternalLink className="w-3 h-3" />
                 </a>{' '}
@@ -284,7 +284,7 @@ values
       </AnimatePresence>
 
       {/* Add New Instrument Card */}
-      <div className="glass-panel rounded-2xl p-5 border border-emerald-100/70 shadow-xs">
+      <div className="glass-panel rounded-2xl p-5 border border-emerald-100/70 dark:border-emerald-500/20 shadow-xs">
         <form onSubmit={handleAddInstrument} className="flex flex-col sm:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
             <input
@@ -292,7 +292,7 @@ values
               placeholder="e.g. Digital Otoscope, Syringe Infusion Pump, ECG Leads..."
               value={newInstrumentName}
               onChange={e => setNewInstrumentName(e.target.value)}
-              className="w-full px-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-900 placeholder-slate-400"
+              className="w-full px-4 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-900 dark:text-slate-100 placeholder-slate-400"
             />
           </div>
           <button
@@ -316,25 +316,25 @@ values
       </div>
 
       {/* Instruments Grid & List */}
-      <div className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70">
-        <div className="flex items-center justify-between pb-4 border-b border-emerald-50 mb-4">
+      <div className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 dark:border-emerald-500/20">
+        <div className="flex items-center justify-between pb-4 border-b border-emerald-50 dark:border-emerald-500/10 mb-4">
           <div>
-            <h3 className="text-base font-semibold text-slate-900 tracking-tight">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 tracking-tight">
               Registered Hospital Instruments
             </h3>
-            <p className="text-xs text-slate-500">
-              Fetched from <code className="font-mono text-emerald-700">supabase.from('instruments').select()</code>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Fetched from <code className="font-mono text-emerald-700 dark:text-emerald-400">supabase.from('instruments').select()</code>
             </p>
           </div>
-          <span className="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-medium">
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-medium">
             {instruments.length} items
           </span>
         </div>
 
         {isLoading ? (
           <div className="py-12 flex flex-col items-center justify-center space-y-3">
-            <Loader2 className="w-6 h-6 text-emerald-600 animate-spin" />
-            <span className="text-xs text-slate-500">Fetching instruments from Supabase...</span>
+            <Loader2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 animate-spin" />
+            <span className="text-xs text-slate-500 dark:text-slate-400">Fetching instruments from Supabase...</span>
           </div>
         ) : instruments.length === 0 ? (
           <div className="py-12 text-center text-slate-400 text-xs">
@@ -349,19 +349,19 @@ values
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: idx * 0.03 }}
                 whileHover={{ y: -2, transition: { duration: 0.15 } }}
-                className="p-3.5 rounded-xl border border-slate-200/80 bg-white/70 hover:border-emerald-300 hover:shadow-xs transition-all flex items-start gap-3"
+                className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white/70 dark:bg-slate-900/70 hover:border-emerald-300 dark:hover:border-emerald-500/50 hover:shadow-xs transition-all flex items-start gap-3"
               >
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
                   <Wrench className="w-3.5 h-3.5" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h4 className="font-medium text-xs text-slate-900 truncate">{inst.name}</h4>
+                  <h4 className="font-medium text-xs text-slate-900 dark:text-slate-100 truncate">{inst.name}</h4>
                   <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
                     <span className="font-mono">ID: #{inst.id ?? idx + 1}</span>
                     {inst.category && (
                       <>
                         <span>·</span>
-                        <span className="text-emerald-700 truncate">{inst.category}</span>
+                        <span className="text-emerald-700 dark:text-emerald-400 truncate">{inst.category}</span>
                       </>
                     )}
                   </div>
