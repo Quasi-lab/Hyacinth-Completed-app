@@ -12,11 +12,11 @@ export const KpiCards: React.FC<Props> = ({ summary }) => {
     {
       label: 'Total Gross Revenue',
       icon: DollarSign,
-      iconColor: 'bg-emerald-100/70 text-emerald-800',
+      iconColor: 'bg-emerald-100/70 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400',
       value: `$${summary.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       meta: (
         <>
-          <span className="font-medium text-emerald-700">100% Star-Schema Synced</span>
+          <span className="font-medium text-emerald-700 dark:text-emerald-400">100% Star-Schema Synced</span>
           <span className="text-slate-300">·</span>
           <span className="text-slate-400 font-mono">{summary.totalRecords} bills</span>
         </>
@@ -25,25 +25,25 @@ export const KpiCards: React.FC<Props> = ({ summary }) => {
     {
       label: 'Average Bill / Visit',
       icon: ReceiptText,
-      iconColor: 'bg-teal-100/70 text-teal-800',
+      iconColor: 'bg-teal-100/70 dark:bg-teal-500/15 text-teal-800 dark:text-teal-400',
       value: `$${summary.averageBill.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      meta: <span className="text-slate-500">Per inpatient admission</span>,
+      meta: <span className="text-slate-500 dark:text-slate-400">Per inpatient admission</span>,
     },
     {
       label: 'Patient Admissions',
       icon: Users,
-      iconColor: 'bg-cyan-100/70 text-cyan-800',
+      iconColor: 'bg-cyan-100/70 dark:bg-cyan-500/15 text-cyan-800 dark:text-cyan-400',
       value: summary.totalRecords.toLocaleString(),
-      meta: <span className="text-slate-500">Across {summary.totalDoctors} attending physicians</span>,
+      meta: <span className="text-slate-500 dark:text-slate-400">Across {summary.totalDoctors} attending physicians</span>,
     },
     {
       label: 'Room Bed Utilization',
       icon: BedDouble,
-      iconColor: 'bg-emerald-100/70 text-emerald-800',
+      iconColor: 'bg-emerald-100/70 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-400',
       value: `${summary.occupancyRate.toFixed(1)}%`,
       meta: (
         <>
-          <span className="font-mono tabular-nums text-emerald-700 font-semibold">{summary.availableBeds} beds free</span>
+          <span className="font-mono tabular-nums text-emerald-700 dark:text-emerald-400 font-semibold">{summary.availableBeds} beds free</span>
           <span className="text-slate-300">/</span>
           <span className="font-mono tabular-nums">{summary.totalBeds} total beds</span>
         </>
@@ -62,16 +62,16 @@ export const KpiCards: React.FC<Props> = ({ summary }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: idx * 0.06, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ y: -3, transition: { duration: 0.2 } }}
-            className="glass-panel rounded-2xl p-5 border border-emerald-100/80 shadow-xs relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-emerald-300/80"
+            className="glass-panel rounded-2xl p-5 border border-emerald-100/80 dark:border-emerald-500/20 shadow-xs relative overflow-hidden transition-all duration-200 hover:shadow-md hover:border-emerald-300/80 dark:hover:border-emerald-500/50"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">{card.label}</span>
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{card.label}</span>
               <div className={`w-8 h-8 rounded-lg ${card.iconColor} flex items-center justify-center shadow-2xs`}>
                 <Icon className="w-4 h-4" />
               </div>
             </div>
             <div className="mt-3">
-              <div className="text-2xl font-bold font-mono text-slate-900 tabular-nums tracking-tight">
+              <div className="text-2xl font-bold font-mono text-slate-900 dark:text-slate-100 tabular-nums tracking-tight">
                 {card.value}
               </div>
               <div className="mt-1 flex items-center gap-1.5 text-xs">

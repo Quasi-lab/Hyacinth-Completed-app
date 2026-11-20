@@ -1,0 +1,60 @@
+- generic [ref=f1e3]:
+  - region "See the whole clinic. One live view." [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e6]: Hyacinth Clinic · Clinical Intelligence
+      - heading "See the whole clinic. One live view." [level=1] [ref=f1e8]
+      - paragraph [ref=f1e9]: Admissions, physicians, ward capacity, and billing — unified into one real-time analytics dashboard built on the clinic's star schema.
+      - generic [ref=f1e10]:
+        - button "Open the dashboard" [ref=f1e11]
+        - generic [ref=f1e14]: 5 dimensions · real-time sync · 8 specialties
+      - button "Scroll to the dashboard" [ref=f1e16]:
+        - generic [ref=f1e17]: Scroll to explore
+  - generic [ref=f1e20]:
+    - banner [ref=f1e21]:
+      - generic [ref=f1e22]:
+        - generic [ref=f1e23]:
+          - generic [ref=f1e24]:
+            - generic [ref=f1e25] [cursor=pointer]: H
+            - link "Hyacinth Clinic" [ref=f1e27] [cursor=pointer]:
+              - /url: "#overview"
+          - navigation [ref=f1e28]:
+            - button "Overview" [ref=f1e29]
+            - button "Financials" [ref=f1e31]
+            - button "Physicians" [ref=f1e32]
+            - button "Afflictions" [ref=f1e33]
+            - button "Instruments" [ref=f1e34]
+            - button "Records" [ref=f1e35]
+          - button "Log" [ref=f1e37]
+        - generic [ref=f1e40]:
+          - generic [ref=f1e41]:
+            - generic [ref=f1e42]: Supabase REST Live
+            - generic [ref=f1e45]: ·
+            - generic [ref=f1e46]: "Synced: Connecting..."
+          - generic [ref=f1e47]:
+            - generic [ref=f1e48]:
+              - generic [ref=f1e49]: "Auto:"
+              - combobox "Auto-refresh interval" [ref=f1e50]:
+                - option "Manual"
+                - option "15s"
+                - option "30s" [selected]
+                - option "60s"
+            - button "Sync" [ref=f1e51]
+            - button "Schema" [ref=f1e58]
+    - main [ref=f1e64]:
+      - generic [ref=f1e65]:
+        - paragraph [ref=f1e68]: Connecting to Hyacinth Clinic Star Schema...
+        - paragraph [ref=f1e69]: Loading PatientRecords, Bill_Dim, Room_Dim, and Physician details
+    - contentinfo [ref=f1e70]:
+      - generic [ref=f1e71]:
+        - generic [ref=f1e72]:
+          - generic [ref=f1e73]: Hyacinth Clinic
+          - generic [ref=f1e74]: ·
+          - generic [ref=f1e75]: Live Star-Schema Hospital Analytics
+        - generic [ref=f1e76]:
+          - generic [ref=f1e77]: PatientRecords Fact · 5 Dimension Tables
+          - generic [ref=f1e78]: ·
+          - button "View Schema Diagram" [ref=f1e79]
+  - button "Open Clinic AI Analyst Chat" [ref=f1e80]:
+    - generic [ref=f1e84]:
+      - generic [ref=f1e85]: Clinic AI Analyst
+      - generic [ref=f1e86]: Ask data & SQL questions

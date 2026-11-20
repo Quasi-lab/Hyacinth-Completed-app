@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Class-driven dark mode: Tailwind v4 defaults to prefers-color-scheme. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --chart-grid: #E2E8F0;
+  --chart-surface: #FFFFFF;
+}
+
+.dark {
+  --chart-grid: #334155;
+  --chart-surface: #0F172A;
+}
+
 @layer base {
   body {
     font-family: 'DM Sans', sans-serif;
@@ -17,11 +30,21 @@
   border: 1px solid rgba(167, 243, 208, 0.45);
 }
 
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.78);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
 .glass-panel-subtle {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.dark .glass-panel-subtle {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(51, 65, 85, 0.7);
 }
 
 .glass-card-hover {
@@ -31,4 +54,9 @@
   background: rgba(255, 255, 255, 0.88);
   border-color: rgba(52, 211, 153, 0.6);
   box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.08), 0 8px 10px -6px rgba(5, 150, 105, 0.04);
+}
+
+.dark .glass-card-hover:hover {
+  background: rgba(30, 41, 59, 0.9);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.35);
 }
