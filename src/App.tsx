@@ -12,11 +12,11 @@ import { FinancialLineChart } from './components/FinancialLineChart';
 import { DoctorBarChart } from './components/DoctorBarChart';
 import { AfflictionPieChart } from './components/AfflictionPieChart';
 import { InstrumentsView } from './components/InstrumentsView';
-import { AppearanceView } from './components/AppearanceView';
 import { PatientTable } from './components/PatientTable';
 import { RecordDetailModal } from './components/RecordDetailModal';
 import { NewRecordModal } from './components/NewRecordModal';
 import { SchemaModal } from './components/SchemaModal';
+import { ClinicChatbot } from './components/ClinicChatbot';
 import { Loader2, AlertCircle, RefreshCw, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -91,7 +91,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] dark:bg-slate-950 flex flex-col selection:bg-emerald-100 dark:selection:bg-emerald-500/15 selection:text-emerald-900 dark:selection:text-emerald-300">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
       {/* 3-Zone Header with Supabase telemetry */}
       <Header
         activeTab={activeTab}
@@ -107,24 +107,22 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {activeTab === 'appearance' && <AppearanceView />}
-
         {/* Loading Skeleton */}
-        {activeTab !== 'appearance' && isLoading && !data && (
+        {isLoading && !data && (
           <div className="py-24 flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400 animate-spin" />
-            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Connecting to Hyacinth Clinic Star Schema...</p>
+            <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+            <p className="text-sm font-medium text-slate-600">Connecting to Hyacinth Clinic Star Schema...</p>
             <p className="text-xs text-slate-400">Loading PatientRecords, Bill_Dim, Room_Dim, and Physician details</p>
           </div>
         )}
 
         {/* Error Boundary View */}
-        {activeTab !== 'appearance' && error && (
-          <div className="p-5 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-300 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+        {error && (
+          <div className="p-5 rounded-2xl bg-red-50 border border-red-200 text-red-800 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <div className="flex-1 text-sm">
               <h4 className="font-semibold">Database Sync Error</h4>
-              <p className="text-xs text-red-700 dark:text-red-400 mt-1">{error}</p>
+              <p className="text-xs text-red-700 mt-1">{error}</p>
               <button
                 onClick={() => fetchAnalytics(false)}
                 className="mt-3 px-3 py-1.5 text-xs font-medium bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors inline-flex items-center gap-1.5"
@@ -137,7 +135,7 @@ export default function App() {
         )}
 
         {/* Populated Dashboard Experience with Fluid Tab Transitions */}
-        {data && activeTab !== 'appearance' && (
+        {data && (
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -157,24 +155,24 @@ export default function App() {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="bg-emerald-50/90 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/30 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-300"
+                      className="bg-emerald-50/90 border border-emerald-200/80 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-900"
                     >
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">Active Filter:</span>
                         {selectedDoctorId !== null && (
-                          <span className="bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/30 font-medium">
+                          <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 font-medium">
                             Physician: {data.charts.doctorWorkload.find(d => d.doctorID === selectedDoctorId)?.fullName}
                           </span>
                         )}
                         {selectedAffliction !== null && (
-                          <span className="bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-500/30 font-medium">
+                          <span className="bg-white px-2 py-0.5 rounded border border-emerald-200 font-medium">
                             Affliction: {selectedAffliction}
                           </span>
                         )}
                       </div>
                       <button
                         onClick={handleClearFilters}
-                        className="font-medium underline hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors"
+                        className="font-medium underline hover:text-emerald-700 transition-colors"
                       >
                         Clear all filters
                       </button>
@@ -249,10 +247,10 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-slate-200/80 dark:border-slate-700/80 bg-white/60 dark:bg-slate-900/60 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+      <footer className="mt-auto border-t border-slate-200/80 bg-white/60 py-6 text-center text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800 dark:text-slate-200">Hyacinth Clinic</span>
+            <span className="font-semibold text-slate-800">Hyacinth Clinic</span>
             <span>·</span>
             <span>Live Star-Schema Hospital Analytics</span>
           </div>
@@ -261,7 +259,7 @@ export default function App() {
             <span>·</span>
             <button
               onClick={() => setIsSchemaModalOpen(true)}
-              className="text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
+              className="text-emerald-700 hover:underline font-medium"
             >
               View Schema Diagram
             </button>
@@ -291,6 +289,9 @@ export default function App() {
         onClose={() => setIsSchemaModalOpen(false)}
         data={data}
       />
+
+      {/* Multi-turn Gemini Clinic AI Analyst */}
+      <ClinicChatbot />
     </div>
   );
 }

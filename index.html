@@ -3,18 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script>
-      (function () {
-        try {
-          var stored = localStorage.getItem('hyacinth-theme');
-          var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (dark) {
-            document.documentElement.classList.add('dark');
-            document.documentElement.style.colorScheme = 'dark';
-          }
-        } catch (e) {}
-      })();
-    </script>
     <title>Hyacinth Clinic Analytics</title>
     <meta name="description" content="Live hospital analytics and financial intelligence dashboard for Hyacinth Clinic, connecting to Supabase star schema database." />
     <meta property="og:title" content="Hyacinth Clinic Analytics" />
@@ -87,7 +75,7 @@
       })();
     </script>
   </head>
-  <body class="bg-[#F8FAFC] dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased selection:bg-emerald-100 dark:selection:bg-emerald-500/30 selection:text-emerald-900 dark:selection:text-emerald-100 min-h-screen">
+  <body class="bg-[#F8FAFC] text-slate-800 antialiased selection:bg-emerald-100 selection:text-emerald-900 min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

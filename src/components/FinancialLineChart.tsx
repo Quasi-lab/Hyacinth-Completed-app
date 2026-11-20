@@ -113,18 +113,18 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-      className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 dark:border-emerald-500/20 relative transition-all duration-300 hover:shadow-md"
+      className="glass-panel rounded-2xl p-6 shadow-sm border border-emerald-100/70 relative transition-all duration-300 hover:shadow-md"
     >
       {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-50 dark:border-emerald-500/10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-50">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-700 dark:text-emerald-400">
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-700">
               <TrendingUp className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 tracking-tight">Financial Costs Over Time</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Timeline analysis of clinical and inpatient billing charges</p>
+              <h3 className="text-base font-semibold text-slate-900 tracking-tight">Financial Costs Over Time</h3>
+              <p className="text-xs text-slate-500">Timeline analysis of clinical and inpatient billing charges</p>
             </div>
           </div>
         </div>
@@ -132,13 +132,13 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
         {/* Filters and View toggles */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Mode Switch with smooth layout sliding */}
-          <div className="flex items-center bg-emerald-50/70 dark:bg-emerald-500/10 p-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20 text-xs">
+          <div className="flex items-center bg-emerald-50/70 p-0.5 rounded-lg border border-emerald-100 text-xs">
             {(['daily', 'cumulative'] as ViewMode[]).map(mode => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
                 className={`relative px-2.5 py-1 rounded-md font-medium transition-colors ${
-                  viewMode === mode ? 'text-emerald-950 dark:text-emerald-300 font-semibold' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100'
+                  viewMode === mode ? 'text-emerald-950 font-semibold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <span className="relative z-10 capitalize">{mode}</span>
@@ -146,7 +146,7 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
                   <motion.div
                     layoutId="viewModeBadge"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    className="absolute inset-0 bg-white dark:bg-slate-900 rounded-md shadow-2xs z-0"
+                    className="absolute inset-0 bg-white rounded-md shadow-2xs z-0"
                   />
                 )}
               </button>
@@ -154,13 +154,13 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
           </div>
 
           {/* Time Window Buttons */}
-          <div className="flex items-center bg-slate-100/80 dark:bg-slate-800/80 p-0.5 rounded-lg border border-slate-200/80 dark:border-slate-700/80 text-xs">
+          <div className="flex items-center bg-slate-100/80 p-0.5 rounded-lg border border-slate-200/80 text-xs">
             {(['ALL', 'Q1', 'Q2', 'Q3', '30D'] as PeriodFilter[]).map(p => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
                 className={`relative px-2.5 py-1 rounded-md font-medium transition-colors ${
-                  period === p ? 'text-slate-900 dark:text-slate-100 font-semibold' : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100'
+                  period === p ? 'text-slate-900 font-semibold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <span className="relative z-10">
@@ -170,7 +170,7 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
                   <motion.div
                     layoutId="periodBadge"
                     transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    className="absolute inset-0 bg-white dark:bg-slate-900 rounded-md shadow-2xs z-0"
+                    className="absolute inset-0 bg-white rounded-md shadow-2xs z-0"
                   />
                 )}
               </button>
@@ -186,11 +186,11 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2 }}
-          className="text-2xl font-bold font-mono tabular-nums text-slate-900 dark:text-slate-100"
+          className="text-2xl font-bold font-mono tabular-nums text-slate-900"
         >
           ${currentTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </motion.div>
-        <div className="text-xs text-slate-500 dark:text-slate-400">
+        <div className="text-xs text-slate-500">
           {viewMode === 'cumulative' ? 'Total Period Gross' : `Sum over ${filteredData.length} active billing days`}
         </div>
       </div>
@@ -224,7 +224,7 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
                   y1={y}
                   x2={width - padding.right}
                   y2={y}
-                  stroke="var(--chart-grid)"
+                  stroke="#E2E8F0"
                   strokeDasharray="4 4"
                   strokeWidth="1"
                 />
@@ -322,7 +322,7 @@ export const FinancialLineChart: React.FC<Props> = ({ data }) => {
                 cx={activePoint.x}
                 cy={activePoint.y}
                 r="6"
-                fill="var(--chart-surface)"
+                fill="#FFFFFF"
                 stroke="#059669"
                 strokeWidth="2.5"
               />

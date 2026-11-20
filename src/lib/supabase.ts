@@ -14,4 +14,14 @@ export const supabaseKey =
   import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   '';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const isSupabaseConfigured = Boolean(
+  supabaseUrl &&
+    supabaseKey &&
+    !supabaseUrl.includes('your-project') &&
+    !supabaseKey.includes('your-')
+);
+
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseKey || 'placeholder-anon-key'
+);

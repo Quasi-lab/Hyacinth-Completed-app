@@ -68,17 +68,17 @@ export const NewRecordModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full shadow-2xl border border-emerald-100 dark:border-emerald-500/20 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-emerald-100 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-emerald-100/70 dark:border-emerald-500/20 bg-gradient-to-r from-emerald-50 dark:from-emerald-500/10 to-teal-50 dark:to-teal-500/10 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-emerald-100/70 bg-gradient-to-r from-emerald-50 to-teal-50 flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">Log New Clinical Admission</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Insert record into live Supabase star-schema tables</p>
+            <h3 className="text-base font-bold text-slate-900">Log New Clinical Admission</h3>
+            <p className="text-xs text-slate-500">Insert record into live Supabase star-schema tables</p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -87,7 +87,7 @@ export const NewRecordModal: React.FC<Props> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-500/30">
+            <div className="p-3 rounded-lg bg-red-50 text-red-700 border border-red-200">
               {error}
             </div>
           )}
@@ -95,23 +95,23 @@ export const NewRecordModal: React.FC<Props> = ({
           {/* Patient Details */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Patient Full Name</label>
+              <label className="block font-medium text-slate-700 mb-1">Patient Full Name</label>
               <input
                 type="text"
                 required
                 value={patientName}
                 onChange={e => setPatientName(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200"
+                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Date of Birth</label>
+              <label className="block font-medium text-slate-700 mb-1">Date of Birth</label>
               <input
                 type="date"
                 required
                 value={birthDate}
                 onChange={e => setBirthDate(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200"
+                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800"
               />
             </div>
           </div>
@@ -119,11 +119,11 @@ export const NewRecordModal: React.FC<Props> = ({
           {/* Doctor & Nurse Assignment */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Attending Physician</label>
+              <label className="block font-medium text-slate-700 mb-1">Attending Physician</label>
               <select
                 value={selectedDoctorId}
                 onChange={e => setSelectedDoctorId(Number(e.target.value))}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200 truncate"
+                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 truncate"
               >
                 {doctors.map(d => (
                   <option key={d.doctorID} value={d.doctorID}>
@@ -134,11 +134,11 @@ export const NewRecordModal: React.FC<Props> = ({
             </div>
 
             <div>
-              <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Supervising Nurse</label>
+              <label className="block font-medium text-slate-700 mb-1">Supervising Nurse</label>
               <select
                 value={selectedNurseId}
                 onChange={e => setSelectedNurseId(Number(e.target.value))}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200 truncate"
+                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 truncate"
               >
                 {nurses.map(n => (
                   <option key={n.nurseID} value={n.nurseID}>
@@ -151,11 +151,11 @@ export const NewRecordModal: React.FC<Props> = ({
 
           {/* Room Selection */}
           <div>
-            <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Room Assignment</label>
+            <label className="block font-medium text-slate-700 mb-1">Room Assignment</label>
             <select
               value={selectedRoomId}
               onChange={e => setSelectedRoomId(Number(e.target.value))}
-              className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200"
+              className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800"
             >
               {rooms.map(r => (
                 <option key={r.roomId} value={r.roomId}>
@@ -168,45 +168,45 @@ export const NewRecordModal: React.FC<Props> = ({
           {/* Bill Service & Cost */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Procedure / Service Name</label>
+              <label className="block font-medium text-slate-700 mb-1">Procedure / Service Name</label>
               <input
                 type="text"
                 required
                 value={productName}
                 onChange={e => setProductName(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200"
+                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800"
               />
             </div>
             <div>
-              <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Financial Cost ($)</label>
+              <label className="block font-medium text-slate-700 mb-1">Financial Cost ($)</label>
               <input
                 type="number"
                 step="0.01"
                 required
                 value={cost}
                 onChange={e => setCost(e.target.value)}
-                className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200 font-mono"
+                className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 font-mono"
               />
             </div>
           </div>
 
           {/* Details */}
           <div>
-            <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Clinical Procedure Notes</label>
+            <label className="block font-medium text-slate-700 mb-1">Clinical Procedure Notes</label>
             <textarea
               rows={2}
               value={details}
               onChange={e => setDetails(e.target.value)}
-              className="w-full px-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200"
+              className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800"
             />
           </div>
 
           {/* Actions */}
-          <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-2">
+          <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors font-medium"
+              className="px-4 py-2 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors font-medium"
             >
               Cancel
             </button>
