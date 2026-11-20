@@ -149,17 +149,33 @@ SUPABASE_SERVICE_ROLE_KEY="<your-supabase-service-role-key>"
 
 ## 6. Running the Application
 
-### Development
+### Prerequisites
+- Node.js 20 or newer (`node --version`)
+- Dependencies installed once: `npm install`
+
+### Development (works with no database — falls back to demo data)
 ```bash
-# Start server with Vite middleware on port 3000
 npm run dev
 ```
+Then open **http://localhost:3000**. The server is a single Express process that mounts Vite in middleware mode, so `/api/*` and the React app share the same origin (no separate frontend port, no CORS setup).
 
 ### Production Build
 ```bash
-# Build Vite frontend bundle
-npm run build
-
-# Start full-stack Node server
-npm start
+npm start   # runs `vite build`, then serves dist/ on http://localhost:3000
 ```
+Set a different port with `PORT=4000 npm run dev` (Windows PowerShell: `$env:PORT=4000; npm run dev`).
+
+### Windows notes
+- If PowerShell blocks npm (`npm.ps1 cannot be loaded because running scripts is disabled`), either run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, or call `npm.cmd` instead of `npm`.
+- `NODE_ENV=production npm start` style commands do not work in Windows shells; the scripts above avoid that by using the `--prod` flag.
+
+### Optional integrations
+The dashboard runs offline with the in-memory star schema (378 admissions). Copy `.env.example` to `.env` to enable the live services, and restart the server afterwards:
+
+| Variable | Effect |
+| --- | --- |
+| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (or `VITE_SUPABASE_PUBLISHABLE_KEY`) | Server reads the live star schema and the Instruments tab uses real `public.instruments` rows. Must be exposed to Vite, so they are sent to the browser. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side only; preferred over the anon key for inserts from the New Record modal. |
+| `GEMINI_API_KEY` | Enables the "Clinic AI Analyst" chat (`/api/chat`). Without it the endpoint returns 503 and the rest of the app is unaffected. |
+
+Check what the server picked up at **http://localhost:3000/api/health**: `"mode": "supabase-live"` means the database is connected, `"mode": "in-memory-fallback"` means you are on demo data.

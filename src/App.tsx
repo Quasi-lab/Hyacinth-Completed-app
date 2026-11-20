@@ -12,6 +12,7 @@ import { KpiCards } from './components/KpiCards';
 import { FinancialLineChart } from './components/FinancialLineChart';
 import { DoctorBarChart } from './components/DoctorBarChart';
 import { AfflictionPieChart } from './components/AfflictionPieChart';
+import { FinalsView } from './components/FinalsView';
 import { InstrumentsView } from './components/InstrumentsView';
 import { PatientTable } from './components/PatientTable';
 import { RecordDetailModal } from './components/RecordDetailModal';
@@ -28,7 +29,9 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   // Active navigation tab & filter states
-  const [activeTab, setActiveTab] = useState('overview');
+  const [openedFinalsDirectly] = useState(() => window.location.hash === '#finals');
+  const [activeTab, setActiveTab] = useState(openedFinalsDirectly ? 'finals' : 'overview');
+  const DashboardLayout = openedFinalsDirectly ? React.Fragment : LandingHero;
   const [selectedDoctorId, setSelectedDoctorId] = useState<number | null>(null);
   const [selectedAffliction, setSelectedAffliction] = useState<string | null>(null);
 
@@ -93,7 +96,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
-      <LandingHero>
+      <DashboardLayout>
       {/* 3-Zone Header with Supabase telemetry */}
       <Header
         activeTab={activeTab}
@@ -147,7 +150,9 @@ export default function App() {
               transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               className="space-y-8"
             >
-              {activeTab === 'instruments' ? (
+              {activeTab === 'finals' ? (
+                <FinalsView />
+              ) : activeTab === 'instruments' ? (
                 <InstrumentsView />
               ) : (
                 <>
@@ -268,7 +273,7 @@ export default function App() {
           </div>
         </div>
       </footer>
-      </LandingHero>
+      </DashboardLayout>
 
       {/* Modals */}
       <RecordDetailModal

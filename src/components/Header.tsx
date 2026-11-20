@@ -21,6 +21,7 @@ const TABS = [
   { id: 'afflictions', label: 'Afflictions' },
   { id: 'instruments', label: 'Instruments' },
   { id: 'records', label: 'Records' },
+  { id: 'finals', label: 'Finals' },
 ];
 
 export const Header: React.FC<Props> = ({
