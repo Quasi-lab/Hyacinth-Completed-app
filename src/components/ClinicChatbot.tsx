@@ -62,7 +62,7 @@ function renderInlineFormatting(text: string): React.ReactNode[] {
   return tokens.map((tok, i) => {
     if (tok.startsWith('**') && tok.endsWith('**') && tok.length > 4) {
       return (
-        <strong key={i} className="font-semibold text-slate-900">
+        <strong key={i} className="font-semibold text-slate-900 dark:text-slate-100">
           {tok.slice(2, -2)}
         </strong>
       );
@@ -71,7 +71,7 @@ function renderInlineFormatting(text: string): React.ReactNode[] {
       return (
         <code
           key={i}
-          className="font-mono text-[11px] bg-emerald-50 text-emerald-800 px-1 py-0.5 rounded border border-emerald-100"
+          className="font-mono text-[11px] bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 px-1 py-0.5 rounded border border-emerald-100 dark:border-emerald-500/20"
         >
           {tok.slice(1, -1)}
         </code>
@@ -155,10 +155,10 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
       }
 
       blocks.push(
-        <div key={`tbl-${i}`} className="my-2 overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <div key={`tbl-${i}`} className="my-2 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60">
           <table className="w-full text-left text-[11px] border-collapse">
             <thead>
-              <tr className="bg-emerald-50/80 border-b border-emerald-100 text-slate-700 font-semibold">
+              <tr className="bg-emerald-50/80 dark:bg-emerald-500/10 border-b border-emerald-100 dark:border-emerald-500/20 text-slate-700 dark:text-slate-200 font-semibold">
                 {headers.map((h, idx) => (
                   <th key={idx} className="py-1.5 px-2.5 whitespace-nowrap">
                     {h}
@@ -166,11 +166,11 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
               {rows.map((row, rIdx) => (
-                <tr key={rIdx} className="hover:bg-slate-50/70">
+                <tr key={rIdx} className="hover:bg-slate-50/70 dark:hover:bg-slate-700/40">
                   {headers.map((_, cIdx) => (
-                    <td key={cIdx} className="py-1.5 px-2.5 text-slate-700 whitespace-nowrap font-mono text-[10.5px]">
+                    <td key={cIdx} className="py-1.5 px-2.5 text-slate-700 dark:text-slate-300 whitespace-nowrap font-mono text-[10.5px]">
                       {renderInlineFormatting(row[cIdx] ?? '')}
                     </td>
                   ))}
@@ -186,7 +186,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
     // Headings
     if (line.startsWith('### ')) {
       blocks.push(
-        <h4 key={`h3-${i}`} className="text-xs font-bold text-slate-900 mt-2.5 mb-1">
+        <h4 key={`h3-${i}`} className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-2.5 mb-1">
           {renderInlineFormatting(line.slice(4))}
         </h4>
       );
@@ -195,7 +195,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
     }
     if (line.startsWith('## ')) {
       blocks.push(
-        <h3 key={`h2-${i}`} className="text-xs font-bold text-emerald-900 mt-3 mb-1">
+        <h3 key={`h2-${i}`} className="text-xs font-bold text-emerald-900 dark:text-emerald-300 mt-3 mb-1">
           {renderInlineFormatting(line.slice(3))}
         </h3>
       );
@@ -211,7 +211,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
         i++;
       }
       blocks.push(
-        <ul key={`ul-${i}`} className="list-disc pl-4 my-1.5 space-y-1 text-xs text-slate-700">
+        <ul key={`ul-${i}`} className="list-disc pl-4 my-1.5 space-y-1 text-xs text-slate-700 dark:text-slate-300">
           {listItems.map((item, idx) => (
             <li key={idx} className="leading-relaxed">
               {renderInlineFormatting(item)}
@@ -229,7 +229,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
         i++;
       }
       blocks.push(
-        <ol key={`ol-${i}`} className="list-decimal pl-4 my-1.5 space-y-1 text-xs text-slate-700">
+        <ol key={`ol-${i}`} className="list-decimal pl-4 my-1.5 space-y-1 text-xs text-slate-700 dark:text-slate-300">
           {listItems.map((item, idx) => (
             <li key={idx} className="leading-relaxed">
               {renderInlineFormatting(item)}
@@ -248,7 +248,7 @@ const MarkdownContent: React.FC<{ content: string }> = ({ content }) => {
 
     // Regular paragraph
     blocks.push(
-      <p key={`p-${i}`} className="text-xs text-slate-700 leading-relaxed my-1">
+      <p key={`p-${i}`} className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed my-1">
         {renderInlineFormatting(line)}
       </p>
     );
@@ -395,21 +395,21 @@ export const ClinicChatbot: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className={`fixed bottom-4 right-4 z-50 flex flex-col bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-200/80 overflow-hidden transition-all duration-200 ${
+            className={`fixed bottom-4 right-4 z-50 flex flex-col bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-emerald-200/80 dark:border-emerald-500/25 overflow-hidden transition-all duration-200 ${
               isExpanded
                 ? 'w-[calc(100vw-2rem)] sm:w-[700px] h-[min(86vh,760px)]'
                 : 'w-[calc(100vw-2rem)] sm:w-[440px] h-[min(78vh,620px)]'
             }`}
           >
             {/* Header */}
-            <div className="px-4 py-3 border-b border-emerald-100 bg-gradient-to-r from-emerald-50 via-teal-50/70 to-white flex items-center justify-between gap-2 shrink-0">
+            <div className="px-4 py-3 border-b border-emerald-100 dark:border-emerald-500/20 bg-gradient-to-r from-emerald-50 via-teal-50/70 to-white dark:from-emerald-500/10 dark:via-slate-900 dark:to-slate-900 flex items-center justify-between gap-2 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-700 to-teal-500 text-white flex items-center justify-center shadow-xs shrink-0">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-xs font-bold text-slate-900 truncate">Hyacinth Clinic AI Analyst</h3>
-                  <p className="text-[10px] text-emerald-700 font-medium truncate">
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">Hyacinth Clinic AI Analyst</h3>
+                  <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-medium truncate">
                     Star-Schema Analyst · Supabase SQL Engineer
                   </p>
                 </div>
@@ -419,7 +419,7 @@ export const ClinicChatbot: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsExpanded(prev => !prev)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors hidden sm:inline-flex"
+                  className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:inline-flex"
                   title={isExpanded ? 'Compact view' : 'Expand chat window'}
                 >
                   {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
@@ -427,7 +427,7 @@ export const ClinicChatbot: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors"
                   title="New conversation"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -435,7 +435,7 @@ export const ClinicChatbot: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                  className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   title="Close chat"
                 >
                   <X className="w-4 h-4" />
@@ -444,7 +444,7 @@ export const ClinicChatbot: React.FC = () => {
             </div>
 
             {/* Scrollable Message Thread */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/40">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/40 dark:bg-slate-950/40">
               {messages.map(msg => {
                 const isUser = msg.role === 'user';
                 return (
@@ -453,17 +453,17 @@ export const ClinicChatbot: React.FC = () => {
                     className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
                   >
                     <div className="flex items-center gap-1.5 mb-1 px-1">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         {isUser ? 'You' : 'Clinic AI'}
                       </span>
                     </div>
 
                     {msg.isError ? (
-                      <div className="max-w-[92%] rounded-2xl px-3.5 py-2.5 bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                      <div className="max-w-[92%] rounded-2xl px-3.5 py-2.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-800 dark:text-red-300 text-xs flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                         <div className="space-y-1">
                           <div className="font-semibold">Assistant Error</div>
-                          <p className="text-[11px] text-red-700 leading-relaxed">{msg.text}</p>
+                          <p className="text-[11px] text-red-700 dark:text-red-300 leading-relaxed">{msg.text}</p>
                         </div>
                       </div>
                     ) : isUser ? (
@@ -471,14 +471,14 @@ export const ClinicChatbot: React.FC = () => {
                         {msg.text}
                       </div>
                     ) : (
-                      <div className="max-w-[95%] rounded-2xl rounded-tl-sm px-3.5 py-2.5 bg-white border border-slate-200/80 shadow-2xs space-y-2">
+                      <div className="max-w-[95%] rounded-2xl rounded-tl-sm px-3.5 py-2.5 bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/70 shadow-2xs space-y-2">
                         {msg.toolsUsed && msg.toolsUsed.length > 0 && (
-                          <div className="flex flex-wrap items-center gap-1 pb-1.5 border-b border-slate-100">
-                            <Database className="w-3 h-3 text-emerald-600 shrink-0" />
+                          <div className="flex flex-wrap items-center gap-1 pb-1.5 border-b border-slate-100 dark:border-slate-700/60">
+                            <Database className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                             {Array.from(new Set(msg.toolsUsed.map(t => t.name))).map(toolName => (
                               <span
                                 key={toolName}
-                                className="text-[10px] font-mono bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-200/70"
+                                className="text-[10px] font-mono bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-200/70 dark:border-emerald-500/30"
                               >
                                 {TOOL_LABELS[toolName] || toolName}
                               </span>
@@ -494,11 +494,11 @@ export const ClinicChatbot: React.FC = () => {
 
               {isSending && (
                 <div className="flex flex-col items-start">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1 px-1">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1 px-1">
                     Clinic AI
                   </div>
-                  <div className="rounded-2xl rounded-tl-sm px-3.5 py-2.5 bg-white border border-slate-200/80 shadow-2xs flex items-center gap-2 text-xs text-slate-500">
-                    <Loader2 className="w-3.5 h-3.5 text-emerald-600 animate-spin" />
+                  <div className="rounded-2xl rounded-tl-sm px-3.5 py-2.5 bg-white dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/70 shadow-2xs flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                    <Loader2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 animate-spin" />
                     <span>Querying star schema & analyzing...</span>
                   </div>
                 </div>
@@ -508,11 +508,11 @@ export const ClinicChatbot: React.FC = () => {
             </div>
 
             {/* Suggested Clinic Questions Tray */}
-            <div className="border-t border-slate-100 bg-white px-3 pt-2 pb-1 shrink-0">
+            <div className="border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 pt-2 pb-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowPrompts(p => !p)}
-                className="w-full flex items-center justify-between text-[11px] font-semibold text-emerald-800 hover:text-emerald-900 py-1"
+                className="w-full flex items-center justify-between text-[11px] font-semibold text-emerald-800 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 py-1"
               >
                 <span>Quick Clinical & Financial Questions</span>
                 {showPrompts ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
@@ -534,10 +534,10 @@ export const ClinicChatbot: React.FC = () => {
                           type="button"
                           disabled={isSending}
                           onClick={() => sendMessage(q.prompt)}
-                          className="text-left p-2 rounded-xl border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-50 hover:border-emerald-300 transition-colors disabled:opacity-50"
+                          className="text-left p-2 rounded-xl border border-emerald-100 dark:border-emerald-500/20 bg-emerald-50/50 dark:bg-emerald-500/5 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 hover:border-emerald-300 dark:hover:border-emerald-500/40 transition-colors disabled:opacity-50"
                         >
-                          <div className="text-[11px] font-semibold text-emerald-900">{q.label}</div>
-                          <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{q.prompt}</div>
+                          <div className="text-[11px] font-semibold text-emerald-900 dark:text-emerald-300">{q.label}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 line-clamp-1 mt-0.5">{q.prompt}</div>
                         </button>
                       ))}
                     </div>
@@ -552,7 +552,7 @@ export const ClinicChatbot: React.FC = () => {
                 e.preventDefault();
                 sendMessage();
               }}
-              className="p-3 border-t border-slate-100 bg-white flex items-end gap-2 shrink-0"
+              className="p-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-end gap-2 shrink-0"
             >
               <textarea
                 ref={inputRef}
@@ -561,7 +561,7 @@ export const ClinicChatbot: React.FC = () => {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask about August/May 2026, Room 301/303, or SQL..."
-                className="flex-1 resize-none px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 placeholder-slate-400 max-h-24"
+                className="flex-1 resize-none px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 max-h-24"
               />
               <button
                 type="submit"

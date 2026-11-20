@@ -1,0 +1,55 @@
+- generic [ref=f11e3]:
+  - region "See the whole clinic. One live view." [ref=f11e4]:
+    - generic [ref=f11e5]:
+      - generic [ref=f11e6]: Hyacinth Clinic · Clinical Intelligence
+      - heading "See the whole clinic. One live view." [level=1] [ref=f11e8]
+      - paragraph [ref=f11e9]: Admissions, physicians, ward capacity, and billing — unified into one real-time analytics dashboard built on the clinic's star schema.
+      - generic [ref=f11e10]:
+        - button "Open the dashboard" [ref=f11e11]
+        - generic [ref=f11e14]: 5 dimensions · real-time sync · 8 specialties
+      - button "Scroll to the dashboard" [ref=f11e16]:
+        - generic [ref=f11e17]: Scroll to explore
+  - generic [ref=f11e20]:
+    - banner [ref=f11e21]:
+      - generic [ref=f11e22]:
+        - generic [ref=f11e23]:
+          - generic [ref=f11e24]:
+            - generic [ref=f11e25] [cursor=pointer]: H
+            - link "Hyacinth Clinic" [ref=f11e27] [cursor=pointer]:
+              - /url: "#overview"
+          - generic [ref=f11e28]:
+            - button "Log" [ref=f11e29]
+            - button "Toggle Navigation Menu" [ref=f11e32]
+        - generic [ref=f11e34]:
+          - generic [ref=f11e35]:
+            - generic [ref=f11e36]: Supabase REST Live
+            - generic [ref=f11e39]: ·
+            - generic [ref=f11e40]: "Synced: Connecting..."
+          - generic [ref=f11e41]:
+            - generic [ref=f11e42]:
+              - generic [ref=f11e43]: "Auto:"
+              - combobox "Auto-refresh interval" [ref=f11e44]:
+                - option "Manual"
+                - option "15s"
+                - option "30s" [selected]
+                - option "60s"
+            - button "Sync" [ref=f11e45]
+            - button "Inspect Star Schema Database" [ref=f11e52]
+    - main [ref=f11e57]:
+      - generic [ref=f11e58]:
+        - paragraph [ref=f11e61]: Connecting to Hyacinth Clinic Star Schema...
+        - paragraph [ref=f11e62]: Loading PatientRecords, Bill_Dim, Room_Dim, and Physician details
+    - contentinfo [ref=f11e63]:
+      - generic [ref=f11e64]:
+        - generic [ref=f11e65]:
+          - generic [ref=f11e66]: Hyacinth Clinic
+          - generic [ref=f11e67]: ·
+          - generic [ref=f11e68]: Live Star-Schema Hospital Analytics
+        - generic [ref=f11e69]:
+          - generic [ref=f11e70]: PatientRecords Fact · 5 Dimension Tables
+          - generic [ref=f11e71]: ·
+          - button "View Schema Diagram" [ref=f11e72]
+  - button "Open Clinic AI Analyst Chat" [ref=f11e73]:
+    - generic [ref=f11e77]:
+      - generic [ref=f11e78]: Clinic AI Analyst
+      - generic [ref=f11e79]: Ask data & SQL questions
