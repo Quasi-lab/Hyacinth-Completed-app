@@ -1,4 +1,5 @@
 import express from 'express';
+import { analyzeFinals } from './finals';
 import dotenv from 'dotenv';
 import path from 'path';
 import http from 'http';
@@ -21,7 +22,7 @@ const rawUrl = process.env.VITE_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE
 const supabaseBaseUrl = rawUrl.replace(/\/rest\/v1\/?$/, '').replace(/\/$/, '');
 const supabaseRestUrl = `${supabaseBaseUrl}/rest/v1`;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const anonKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 function isSupabaseLiveConfigured(): boolean {
   const keyToUse = serviceRoleKey || anonKey;
@@ -346,25 +347,58 @@ function createMockStarSchemaStore() {
 
 const mockStore = createMockStarSchemaStore();
 
-// Shared star-schema loader (live Supabase if configured & reachable, otherwise in-memory fallback)
+async function fetchAllRows(table: string, primaryKey: string) {
+  const rows: any[] = [];
+  let lastId: number | undefined;
+  while (true) {
+    const filter = lastId === undefined ? '' : `&${primaryKey}=gt.${lastId}`;
+    const page = await fetchSupabaseTable(table, `select=*&order=${primaryKey}.asc&limit=1000${filter}`);
+    if (!page.length) return rows;
+    rows.push(...page);
+    lastId = page[page.length - 1][primaryKey];
+  }
+}
+
+async function loadLiveStarSchema() {
+  if (!isSupabaseLiveConfigured()) throw new Error('Supabase is not configured');
+  const [facts, bills, doctors, nurses, rooms, patients] = await Promise.all([
+    fetchAllRows('PatientRecords', 'recordID'),
+    fetchAllRows('Bill_Dim', 'billID'),
+    fetchAllRows('Doctor_Dim', 'doctorID'),
+    fetchAllRows('Nurse_Dim', 'nurseID'),
+    fetchAllRows('Room_Dim', 'roomId'),
+    fetchAllRows('Patient_Dim', 'patientID'),
+  ]);
+  const patientRecords = facts.map(record => ({ ...record, addmission: record.admission }));
+  patientRecords.sort((a, b) => Date.parse(b.addmission ?? 0) - Date.parse(a.addmission ?? 0));
+  return { patientRecords, bills, doctors, nurses, rooms, patients, source: 'supabase' as const };
+}
+
 async function loadStarSchemaTables() {
   if (isSupabaseLiveConfigured()) {
     try {
-      const [patientRecords, bills, doctors, nurses, rooms, patients] = await Promise.all([
-        fetchSupabaseTable('PatientRecords', 'select=*&order=addmission.desc&limit=1000'),
-        fetchSupabaseTable('Bill_Dim', 'select=*&limit=1000'),
-        fetchSupabaseTable('Doctor_Dim', 'select=*'),
-        fetchSupabaseTable('Nurse_Dim', 'select=*'),
-        fetchSupabaseTable('Room_Dim', 'select=*'),
-        fetchSupabaseTable('Patient_Dim', 'select=*&limit=1000'),
-      ]);
-      return { patientRecords, bills, doctors, nurses, rooms, patients, source: 'supabase' as const };
-    } catch (supabaseErr: any) {
-      console.warn('[AI Studio] Supabase unreachable — using in-memory star-schema store:', supabaseErr.message);
+      return await loadLiveStarSchema();
+    } catch (error) {
+      console.warn('Supabase warehouse read failed. Using in-memory data.', error);
     }
   }
   return { ...mockStore, source: 'in-memory' as const };
 }
+
+app.get('/api/finals', async (_req, res) => {
+  try {
+    const started = performance.now();
+    const warehouse = await loadLiveStarSchema();
+    const result = analyzeFinals(warehouse, performance.now() - started);
+    if (result.before.facts < 1000 || result.batchCount < 5000) {
+      return res.status(409).json({ error: 'The live warehouse is missing the expected midterm baseline or finals batch.' });
+    }
+    return res.json(result);
+  } catch (error) {
+    console.error('Finals warehouse read failed:', error);
+    return res.status(503).json({ error: 'Could not read the live Supabase warehouse.' });
+  }
+});
 
 // Helper to query Supabase REST API using service role key (or anon key fallback)
 async function fetchSupabaseTable(tableName: string, queryParams: string = '') {
@@ -373,9 +407,8 @@ async function fetchSupabaseTable(tableName: string, queryParams: string = '') {
   const res = await fetch(url, {
     headers: {
       apikey: keyToUse,
-      Authorization: `Bearer ${keyToUse}`,
+      ...(keyToUse.startsWith('sb_') ? {} : { Authorization: `Bearer ${keyToUse}` }),
       'Content-Type': 'application/json',
-      Prefer: 'count=exact',
     },
   });
 
@@ -724,7 +757,7 @@ app.post('/api/seed-record', async (req, res) => {
         // 3. Create PatientRecords fact entry
         const recordPayload = {
           recordID: newRecordID,
-          addmission: nowIso,
+          admission: nowIso,
           patientID: newPatientID,
           roomID,
           doctorID,
@@ -798,14 +831,17 @@ app.post('/api/seed-record', async (req, res) => {
 });
 
 // --- Server-Side Gemini Chatbot Endpoint (/api/chat) ---
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    },
-  },
-});
+// Only construct the client when a key exists, so local runs without a key start cleanly.
+const ai = process.env.GEMINI_API_KEY
+  ? new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        },
+      },
+    })
+  : null;
 
 const clinicFunctionDeclarations: FunctionDeclaration[] = [
   {
@@ -1098,7 +1134,7 @@ Your dual responsibilities:
 
 2. Senior Supabase PostgreSQL Database Engineer:
    - You understand the Hyacinth Clinic star schema:
-     - Fact table: public."PatientRecords" ("recordID", addmission, "patientID", "roomID", "doctorID", "nurseID", "billID")
+     - Fact table: public."PatientRecords" ("recordID", admission, "patientID", "roomID", "doctorID", "nurseID", "billID")
      - Dimension tables: public."Patient_Dim" ("patientID", "firstName", "lastName", "patientBdate"), public."Doctor_Dim" ("doctorID", "firstName", "lastName", "medicalSpecialization", "experienceYears"), public."Nurse_Dim" ("nurseID", "firstName", "lastName", "areaAssignment", "experienceYears"), public."Room_Dim" ("roomId", "servicableBeds", "currentAvailability", "roomClass"), public."Bill_Dim" ("billID", "purchasedAt", "productName", "financialCost", details).
    - When the user asks for SQL queries or database optimization explanations, provide clean PostgreSQL queries using:
      - Uppercase SQL keywords (SELECT, FROM, WHERE, WITH, LEFT JOIN, UNION ALL, ORDER BY, GROUP BY)
@@ -1112,9 +1148,9 @@ Your dual responsibilities:
 Keep responses concise, structured, accurate, and directly helpful for clinic administrators, physicians, and database analysts.`;
 
 app.post('/api/chat', async (req, res) => {
-  if (!process.env.GEMINI_API_KEY) {
+  if (!ai) {
     return res.status(503).json({
-      error: 'Gemini API key is not configured on the server. Please set GEMINI_API_KEY in Settings > Secrets.',
+      error: 'Gemini API key is not configured on the server. Please set GEMINI_API_KEY in your .env file.',
     });
   }
 
@@ -1214,7 +1250,11 @@ app.post('/api/chat', async (req, res) => {
 async function startServer() {
   const httpServer = http.createServer(app);
 
-  if (process.env.NODE_ENV === 'production') {
+  // Cross-platform production switch: `NODE_ENV=production` fails inline on Windows,
+  // so `tsx server.ts --prod` is also accepted.
+  const isProduction = process.env.NODE_ENV === 'production' || process.argv.includes('--prod');
+
+  if (isProduction) {
     app.use(express.static(path.resolve(__dirname, 'dist')));
     app.get('*', (_req, res) => {
       res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
@@ -1232,7 +1272,7 @@ async function startServer() {
   }
 
   httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`Hyacinth Clinic server running on http://0.0.0.0:${PORT}`);
+    console.log(`Hyacinth Clinic server running on http://localhost:${PORT}`);
   });
 }
 
