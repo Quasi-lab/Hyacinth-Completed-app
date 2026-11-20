@@ -7,6 +7,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AnalyticsPayload, JoinedPatientRecord } from './types/database';
 import { Header } from './components/Header';
 import { OverviewHero } from './components/OverviewHero';
+import { LandingHero } from './components/LandingHero';
 import { KpiCards } from './components/KpiCards';
 import { FinancialLineChart } from './components/FinancialLineChart';
 import { DoctorBarChart } from './components/DoctorBarChart';
@@ -92,6 +93,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
+      <LandingHero>
       {/* 3-Zone Header with Supabase telemetry */}
       <Header
         activeTab={activeTab}
@@ -266,6 +268,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      </LandingHero>
 
       {/* Modals */}
       <RecordDetailModal
