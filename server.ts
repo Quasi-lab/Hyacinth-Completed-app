@@ -422,7 +422,7 @@ async function fetchSupabaseTable(tableName: string, queryParams: string = '') {
 // In-memory cache for fast responsive dashboard queries with 5s TTL
 let cachedAnalytics: any = null;
 let lastCacheTime = 0;
-const CACHE_TTL_MS = 5000;
+const CACHE_TTL_MS = 30000;
 
 app.get('/api/health', async (_req, res) => {
   try {
@@ -658,32 +658,23 @@ app.get('/api/analytics', async (req, res) => {
 });
 
 // Helper to categorize clinical affliction from bill details / procedures
+const AFFLICTION_RULES: Array<{ keywords: string[]; bucket: string }> = [
+  { keywords: ['x-ray', 'chest x-ray', 'chest xray', 'respiratory', 'pneumonia', 'bronchitis'], bucket: 'Respiratory & Pulmonary' },
+  { keywords: ['ecg', 'cardio', 'blood pressure', 'hypertension', 'coronary'], bucket: 'Cardiovascular Conditions' },
+  { keywords: ['urinalysis', 'renal', 'urine', 'kidney', 'urinary'], bucket: 'Renal & Urological' },
+  { keywords: ['mri', 'brain', 'neuro', 'spine', 'cranial'], bucket: 'Neurological & Musculoskeletal' },
+  { keywords: ['ct scan', 'trauma', 'surgery', 'abdomen', 'acute'], bucket: 'Trauma & Acute Surgery' },
+  { keywords: ['blood test', 'panel', 'metabolic', 'diabetes', 'infectious'], bucket: 'Infectious & Metabolic' },
+  { keywords: ['routine', 'checkup', 'consultation', 'general'], bucket: 'Preventive & General Medicine' },
+  { keywords: ['pediatric'], bucket: 'Pediatric Care' },
+];
+
 function inferAffliction(productName?: string, details?: string, specialization?: string): string {
   const text = `${productName || ''} ${details || ''} ${specialization || ''}`.toLowerCase();
-
-  if (text.includes('x-ray') || text.includes('chest') || text.includes('respiratory') || text.includes('pneumonia') || text.includes('bronchitis')) {
-    return 'Respiratory & Pulmonary';
-  }
-  if (text.includes('ecg') || text.includes('cardio') || text.includes('blood pressure') || text.includes('hypertension') || text.includes('coronary')) {
-    return 'Cardiovascular Conditions';
-  }
-  if (text.includes('urinalysis') || text.includes('renal') || text.includes('urine') || text.includes('kidney') || text.includes('urinary')) {
-    return 'Renal & Urological';
-  }
-  if (text.includes('mri') || text.includes('brain') || text.includes('neuro') || text.includes('spine') || text.includes('cranial')) {
-    return 'Neurological & Musculoskeletal';
-  }
-  if (text.includes('ct scan') || text.includes('trauma') || text.includes('surgery') || text.includes('abdomen') || text.includes('acute')) {
-    return 'Trauma & Acute Surgery';
-  }
-  if (text.includes('blood test') || text.includes('panel') || text.includes('metabolic') || text.includes('diabetes') || text.includes('infectious')) {
-    return 'Infectious & Metabolic';
-  }
-  if (text.includes('routine') || text.includes('checkup') || text.includes('consultation') || text.includes('general')) {
-    return 'Preventive & General Medicine';
-  }
-  if (text.includes('pediatric')) {
-    return 'Pediatric Care';
+  for (const rule of AFFLICTION_RULES) {
+    if (rule.keywords.some(kw => text.includes(kw))) {
+      return rule.bucket;
+    }
   }
   return 'General Clinical Diagnostic';
 }
@@ -698,7 +689,12 @@ app.post('/api/seed-record', async (req, res) => {
     const [first, ...rest] = patientName.split(' ');
     const last = rest.join(' ') || 'Vance';
     const birthDate = body.birthDate || '1990-05-14';
-    const cost = body.cost || (Math.floor(Math.random() * 3500) + 800).toFixed(2);
+    const birthYear = Number(birthDate.slice(0, 4));
+    const validBirthDate =
+      birthDate && Number.isFinite(birthYear) && birthYear >= 1900 && birthYear <= new Date().getFullYear()
+        ? birthDate
+        : '1990-05-14';
+    const cost = body.cost || (Math.floor(Math.random() * 2000) + 500).toFixed(2);
     const productName = body.productName || 'Comprehensive Blood Test';
     const details = body.details || 'Diagnostic laboratory assessment conducted for inpatient evaluation.';
     const doctorID = Number(body.doctorID) || 101;
@@ -732,7 +728,7 @@ app.post('/api/seed-record', async (req, res) => {
             patientID: newPatientID,
             firstName: first,
             lastName: last,
-            patientBdate: birthDate,
+            patientBdate: validBirthDate,
           }),
         });
 
@@ -831,10 +827,12 @@ app.post('/api/seed-record', async (req, res) => {
 });
 
 // --- Server-Side Gemini Chatbot Endpoint (/api/chat) ---
-// Only construct the client when a key exists, so local runs without a key start cleanly.
-const ai = process.env.GEMINI_API_KEY
+// Only construct the client when a real key exists (not a placeholder), so local runs without a key start cleanly.
+const geminiKey = process.env.GEMINI_API_KEY || '';
+const isPlaceholderKey = geminiKey.includes('your-') || geminiKey.includes('placeholder') || geminiKey.length < 10;
+const ai = geminiKey && !isPlaceholderKey
   ? new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY,
+      apiKey: geminiKey,
       httpOptions: {
         headers: {
           'User-Agent': 'aistudio-build',
