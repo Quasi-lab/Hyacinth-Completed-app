@@ -29,9 +29,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
 
   // Active navigation tab & filter states
-  const [openedFinalsDirectly] = useState(() => window.location.hash === '#finals');
-  const [activeTab, setActiveTab] = useState(openedFinalsDirectly ? 'finals' : 'overview');
-  const DashboardLayout = openedFinalsDirectly ? React.Fragment : LandingHero;
+  const [activeTab, setActiveTab] = useState(() => window.location.hash === '#finals' ? 'finals' : 'overview');
   const [selectedDoctorId, setSelectedDoctorId] = useState<number | null>(null);
   const [selectedAffliction, setSelectedAffliction] = useState<string | null>(null);
 
@@ -96,7 +94,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col selection:bg-emerald-100 selection:text-emerald-900">
-      <DashboardLayout>
+      <LandingHero>
       {/* 3-Zone Header with Supabase telemetry */}
       <Header
         activeTab={activeTab}
@@ -273,7 +271,7 @@ export default function App() {
           </div>
         </div>
       </footer>
-      </DashboardLayout>
+      </LandingHero>
 
       {/* Modals */}
       <RecordDetailModal
