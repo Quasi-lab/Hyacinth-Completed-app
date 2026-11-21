@@ -979,6 +979,22 @@ const clinicTools = [
       },
     },
   },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'query_top_patients_by_billing',
+      description:
+        'Query the top patients by total billed amount across all admissions (entire history), optionally filtered by year. Returns patient details, total billed amount, admission count, and average bill per admission. Use for questions like "who is the top paying customer" or "highest revenue patients".',
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          limit: { type: 'integer' as const, description: 'Number of top patients to return (default 10)' },
+          year: { type: 'integer' as const, description: 'Optional 4-digit year to filter, e.g. 2026' },
+        },
+        required: [],
+      },
+    },
+  },
 ];
 
 app.post('/api/chat', async (req, res) => {
@@ -1173,6 +1189,50 @@ async function executeClinicTool(name: string, args: any) {
       })),
       totalStaff: roomDoctors.length + roomNurses.length,
     };
+  }
+
+  if (name === 'query_top_patients_by_billing') {
+    const { limit = 10, year } = args;
+
+    // Aggregate bills by patient
+    const patientBilling = new Map<number, { total: number; count: number; bills: any[] }>();
+
+    for (const rec of patientRecords) {
+      if (year && rec.addmission && !rec.addmission.startsWith(String(year))) continue;
+      const bill = billMap.get(Number(rec.billID));
+      if (!bill) continue;
+      const cost = parseFloat(bill.financialCost) || 0;
+      if (cost <= 0) continue;
+
+      const pid = Number(rec.patientID);
+      const existing = patientBilling.get(pid) || { total: 0, count: 0, bills: [] };
+      existing.total += cost;
+      existing.count += 1;
+      existing.bills.push({ billID: bill.billID, productName: bill.productName, cost });
+      patientBilling.set(pid, existing);
+    }
+
+    // Sort by total descending, take top N
+    const topPatients = Array.from(patientBilling.entries())
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, limit)
+      .map(([patientID, data]) => {
+        const patient = patientMap.get(patientID);
+        return {
+          patientID,
+          patientName: patient ? `${patient.firstName} ${patient.lastName}` : `Patient ${patientID}`,
+          patientBirthDate: patient?.patientBdate || null,
+          totalBilled: Math.round(data.total * 100) / 100,
+          admissionCount: data.count,
+          averageBill: data.count > 0 ? Math.round((data.total / data.count) * 100) / 100 : 0,
+          topServices: data.bills
+            .sort((a, b) => b.cost - a.cost)
+            .slice(0, 3)
+            .map(b => ({ service: b.productName, cost: b.cost })),
+        };
+      });
+
+    return { patients: topPatients, totalPatientsAnalyzed: patientBilling.size };
   }
 
   return { error: `Unknown tool: ${name}` };

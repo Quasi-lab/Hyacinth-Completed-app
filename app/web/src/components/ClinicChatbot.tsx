@@ -53,6 +53,7 @@ const TOOL_LABELS: Record<string, string> = {
   query_admissions_by_period: 'PatientRecords + Doctor_Dim',
   query_room_usage: 'Room Usage (PatientRecords)',
   query_room_staffing: 'Room Staffing (UNION ALL)',
+  query_top_patients_by_billing: 'Top Patients by Total Billing',
   query_financials_and_services: 'Bill_Dim Aggregation',
   get_clinic_overview: 'Clinic KPI Overview',
 };
