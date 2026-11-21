@@ -1,7 +1,7 @@
-// Local development server — imports the Express app from api/server.ts,
+// Local development server — imports the Express app from the Vercel function file,
 // adds Vite middleware in dev, and starts listening.
 import express from 'express';
-import { app } from './api/server';
+import { app } from './api/[[...path]]';
 import path from 'path';
 import http from 'http';
 import { fileURLToPath } from 'url';
