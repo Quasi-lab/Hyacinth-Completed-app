@@ -3,12 +3,15 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
+const webRoot = path.resolve(import.meta.dirname, 'app/web');
+
 export default defineConfig(() => {
   return {
+    root: webRoot,
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': webRoot,
       },
     },
     server: {

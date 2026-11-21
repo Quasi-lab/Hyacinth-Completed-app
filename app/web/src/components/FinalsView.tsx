@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
-import type { FinalsResult } from '../../finals';
+import type { FinalsResult } from '../../../../finals';
 
 type Bar = { label: string; value: number; count?: number };
 const number = new Intl.NumberFormat('en-PH');
