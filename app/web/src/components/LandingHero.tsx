@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ArrowUp, ChevronDown } from 'lucide-react';
 
 interface LandingHeroProps {
   children: React.ReactNode;
@@ -10,6 +10,10 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ children }) => {
   const heroRef = useRef<HTMLElement>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+  const [heroDismissed, setHeroDismissed] = useState(false);
+  const heroHeightRef = useRef(0);
+  const dismissScrollYRef = useRef(0);
+  const isRestoringRef = useRef(false);
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -24,6 +28,47 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ children }) => {
   const dashboardY = useTransform(scrollYProgress, [0.35, 1], [56, 0]);
   const dashboardOpacity = useTransform(scrollYProgress, [0.35, 0.9], [0.5, 1]);
 
+  // Once the hero is fully scrolled past, remove it from the page so the
+  // dashboard top becomes the scroll floor. The explicit button is the only
+  // way back, which keeps wheel/touch/keyboard scrolling untrapped.
+  useEffect(() => {
+    const handleScroll = () => {
+      if (heroDismissed) return;
+      const hero = heroRef.current;
+      if (!hero || hero.getBoundingClientRect().bottom > 1) return;
+      heroHeightRef.current = hero.offsetHeight;
+      dismissScrollYRef.current = window.scrollY;
+      setHeroDismissed(true);
+    };
+
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [heroDismissed]);
+
+  // Collapsing the hero shortens the document, so subtract its height from the
+  // scroll position in the same frame to keep the dashboard visually still.
+  useLayoutEffect(() => {
+    if (!heroDismissed || !heroHeightRef.current) return;
+    const height = heroHeightRef.current;
+    heroHeightRef.current = 0;
+    window.scrollTo({ top: Math.max(0, dismissScrollYRef.current - height), behavior: 'auto' });
+  }, [heroDismissed]);
+
+  // Re-measure scroll offsets once the hero is back in layout, otherwise the
+  // parallax opacity stays at the dismissed value.
+  useLayoutEffect(() => {
+    if (heroDismissed || !isRestoringRef.current) return;
+    isRestoringRef.current = false;
+    window.dispatchEvent(new Event('resize'));
+  }, [heroDismissed]);
+
+  const restoreHero = () => {
+    isRestoringRef.current = true;
+    setHeroDismissed(false);
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
   const scrollToDashboard = () => {
     const target = dashboardRef.current;
     if (!target) return;
@@ -35,6 +80,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ children }) => {
     <>
       <section
         ref={heroRef}
+        style={heroDismissed ? { display: 'none' } : undefined}
         aria-labelledby="landing-title"
         className="relative flex min-h-[100svh] items-center justify-center overflow-hidden border-b border-emerald-100/60 dark:border-slate-800 bg-gradient-to-b from-white via-[#F8FAFC] to-[#F8FAFC] dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 py-16"
       >
@@ -120,13 +166,24 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ children }) => {
         id="dashboard"
         ref={dashboardRef}
         style={{
-          y: reduceMotion ? 0 : dashboardY,
-          '--dashboard-fade': reduceMotion ? 1 : dashboardOpacity,
+          y: heroDismissed || reduceMotion ? 0 : dashboardY,
+          '--dashboard-fade': heroDismissed || reduceMotion ? 1 : dashboardOpacity,
         } as React.CSSProperties}
         className="relative z-10 opacity-[var(--dashboard-fade)]"
       >
         {children}
       </motion.div>
+
+      {heroDismissed && (
+        <button
+          type="button"
+          onClick={restoreHero}
+          className="fixed bottom-24 right-5 z-40 inline-flex min-h-12 items-center gap-2 rounded-full border border-emerald-200/80 bg-white/85 px-4 text-sm font-semibold text-emerald-800 shadow-lg shadow-emerald-900/10 backdrop-blur-md transition-colors hover:bg-white hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8FAFC] dark:border-emerald-500/25 dark:bg-slate-900/85 dark:text-emerald-300 dark:shadow-black/40 dark:hover:bg-slate-800 dark:hover:text-emerald-200 dark:focus-visible:ring-offset-slate-950"
+        >
+          <ArrowUp className="h-4 w-4" aria-hidden="true" />
+          Back to top
+        </button>
+      )}
     </>
   );
 };
