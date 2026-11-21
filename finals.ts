@@ -18,7 +18,7 @@ type Warehouse = {
 
 export const isFinalsBatch = (id: number) => id >= -5000 && id <= -1;
 const isMidterm = (id: number) => id >= 1 && id <= 1504;
-const manilaMonth = new Intl.DateTimeFormat('sv-SE', {
+const manilaMonth = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit',
 });
 const monthOf = (date: string | null) => date && Number.isFinite(Date.parse(date))
@@ -104,7 +104,7 @@ export function analyzeFinals(warehouse: Warehouse, readMs: number) {
   for (const fact of batch) {
     const bill = billMap.get(fact.billID);
     const cost = charge(bill);
-    if (!bill?.productName || !Number.isFinite(cost) || cost < 0 || -fact.recordID % 3 !== 0) continue;
+    if (!bill?.productName || !Number.isFinite(cost) || cost < 0) continue;
     const group = training.get(bill.productName) ?? [];
     group.push(cost);
     training.set(bill.productName, group);
@@ -133,7 +133,7 @@ export function analyzeFinals(warehouse: Warehouse, readMs: number) {
     scored++;
     const flagged = cost > fence;
     if (flagged) alerts.push({ recordID: fact.recordID, service, cost, fence: money(fence) });
-    if (!isFinalsBatch(fact.recordID) || -fact.recordID % 3 === 0) continue;
+    if (!isFinalsBatch(fact.recordID)) continue;
     const labeled = bill.details === 'Synthetic duplicate-charge test';
     if (labeled && flagged) tp++;
     else if (labeled) fn++;

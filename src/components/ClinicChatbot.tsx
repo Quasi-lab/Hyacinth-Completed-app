@@ -58,7 +58,7 @@ const TOOL_LABELS: Record<string, string> = {
 };
 
 function renderInlineFormatting(text: string): React.ReactNode[] {
-  const tokens = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  const tokens = text.split(/(\*\*[\s\S]+?\*\*|`[^`]+`)/g);
   return tokens.map((tok, i) => {
     if (tok.startsWith('**') && tok.endsWith('**') && tok.length > 4) {
       return (
