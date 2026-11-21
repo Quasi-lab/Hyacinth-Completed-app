@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
 
-const webRoot = path.resolve(__dirname, 'app/web');
+const webRoot = path.resolve(import.meta.dirname, 'app/web');
 
 export default defineConfig(() => {
   return {
