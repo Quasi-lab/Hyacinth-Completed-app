@@ -2,7 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "app/web/dist",
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.ts" },
+    { "src": "/api/(.*)", "dest": "/api/[[...path]].ts" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/app/web/dist/index.html" }
   ]
