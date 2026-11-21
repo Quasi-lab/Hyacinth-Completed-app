@@ -5,7 +5,7 @@ import path from 'path';
 import http from 'http';
 import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI, FunctionDeclaration, Type } from '@google/genai';
+import { Groq } from 'groq-sdk';
 
 dotenv.config();
 
@@ -826,82 +826,93 @@ app.post('/api/seed-record', async (req, res) => {
   }
 });
 
-// --- Server-Side Gemini Chatbot Endpoint (/api/chat) ---
+// --- Server-Side Groq Chatbot Endpoint (/api/chat) ---
 // Only construct the client when a real key exists (not a placeholder), so local runs without a key start cleanly.
-const geminiKey = process.env.GEMINI_API_KEY || '';
-const isPlaceholderKey = geminiKey.includes('your-') || geminiKey.includes('placeholder') || geminiKey.length < 10;
-const ai = geminiKey && !isPlaceholderKey
-  ? new GoogleGenAI({
-      apiKey: geminiKey,
-      httpOptions: {
-        headers: {
-          'User-Agent': 'aistudio-build',
-        },
-      },
+const groqKey = process.env.GROQ_API_KEY || '';
+const isPlaceholderKey = groqKey.includes('your-') || groqKey.includes('placeholder') || groqKey.length < 10;
+const ai = groqKey && !isPlaceholderKey
+  ? new Groq({
+      apiKey: groqKey,
     })
   : null;
 
-const clinicFunctionDeclarations: FunctionDeclaration[] = [
+const clinicTools = [
   {
-    name: 'query_admissions_by_period',
-    description:
-      'Query patients admitted in a specific year and month along with their attending physicians, medical specializations, and admission timestamps (equivalent to CTE + LEFT JOIN on PatientRecords, Patient_Dim, and Doctor_Dim).',
-    parameters: {
-      type: Type.OBJECT,
-      properties: {
-        year: { type: Type.INTEGER, description: '4-digit year, e.g. 2026' },
-        month: { type: Type.INTEGER, description: 'Month number 1-12, e.g. 8 for August' },
-        limit: { type: Type.INTEGER, description: 'Max sample patient rows to return (default 35)' },
-      },
-      required: ['year', 'month'],
-    },
-  },
-  {
-    name: 'query_room_usage',
-    description:
-      'Query which patients occupied a specific room ID (e.g., Room 301) during a given year and month, and return the total patient count in that period (equivalent to COUNT(*) OVER ()).',
-    parameters: {
-      type: Type.OBJECT,
-      properties: {
-        roomId: { type: Type.INTEGER, description: 'Room ID number, e.g. 301' },
-        year: { type: Type.INTEGER, description: 'Optional 4-digit year, e.g. 2026' },
-        month: { type: Type.INTEGER, description: 'Optional month number 1-12, e.g. 5 for May' },
-        limit: { type: Type.INTEGER, description: 'Max sample patient rows to return (default 35)' },
-      },
-      required: ['roomId'],
-    },
-  },
-  {
-    name: 'query_room_staffing',
-    description:
-      'Query the distinct assigned doctors and nurses for a specific room ID (e.g., Room 303) and compute the total medical staff headcount (equivalent to UNION ALL across Doctor_Dim and Nurse_Dim).',
-    parameters: {
-      type: Type.OBJECT,
-      properties: {
-        roomId: { type: Type.INTEGER, description: 'Room ID number, e.g. 303' },
-      },
-      required: ['roomId'],
-    },
-  },
-  {
-    name: 'query_financials_and_services',
-    description:
-      'Query healthcare services rendered and financial revenue generated for a given year and month (or all time), grouped by productName with times_rendered, service_revenue, and total_monthly_revenue.',
-    parameters: {
-      type: Type.OBJECT,
-      properties: {
-        year: { type: Type.INTEGER, description: 'Optional 4-digit year, e.g. 2026' },
-        month: { type: Type.INTEGER, description: 'Optional month number 1-12, e.g. 5 for May' },
+    type: 'function' as const,
+    function: {
+      name: 'query_admissions_by_period',
+      description:
+        'Query patients admitted in a specific year and month, optionally filtered by doctor name, along with their attending physicians, medical specializations, and admission timestamps (equivalent to CTE + LEFT JOIN on PatientRecords, Patient_Dim, and Doctor_Dim). Use this for questions like "patients treated by Dr. Jennifer Garcia in August 2026".',
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          year: { type: 'integer' as const, description: '4-digit year, e.g. 2026' },
+          month: { type: 'integer' as const, description: 'Month number 1-12, e.g. 8 for August' },
+          doctorName: { type: 'string' as const, description: 'Optional full or partial doctor name, e.g. "Jennifer Garcia" or "Dr. Jennifer Garcia"' },
+          limit: { type: 'integer' as const, description: 'Max sample patient rows to return (default 35)' },
+        },
+        required: ['year', 'month'],
       },
     },
   },
   {
-    name: 'get_clinic_overview',
-    description:
-      'Retrieve overall clinic KPIs (total revenue, total admissions, average bill, bed occupancy, physician workload rankings, and affliction distribution) across the entire dataset.',
-    parameters: {
-      type: Type.OBJECT,
-      properties: {},
+    type: 'function' as const,
+    function: {
+      name: 'query_room_usage',
+      description:
+        'Query which patients occupied a specific room ID (e.g., Room 301) during a given year and month, and return the total patient count in that period (equivalent to COUNT(*) OVER ()).',
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          roomId: { type: 'integer' as const, description: 'Room ID number, e.g. 301' },
+          year: { type: 'integer' as const, description: 'Optional 4-digit year, e.g. 2026' },
+          month: { type: 'integer' as const, description: 'Optional month number 1-12, e.g. 5 for May' },
+          limit: { type: 'integer' as const, description: 'Max sample patient rows to return (default 35)' },
+        },
+        required: ['roomId'],
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'query_room_staffing',
+      description:
+        'Query the distinct assigned doctors and nurses for a specific room ID (e.g., Room 303) and compute the total medical staff headcount (equivalent to UNION ALL across Doctor_Dim and Nurse_Dim).',
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          roomId: { type: 'integer' as const, description: 'Room ID number, e.g. 303' },
+        },
+        required: ['roomId'],
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'query_financials_and_services',
+      description:
+        'Query healthcare services rendered and financial revenue generated for a given year and month (or all time), grouped by productName with times_rendered, service_revenue, and total_monthly_revenue.',
+      parameters: {
+        type: 'object' as const,
+        properties: {
+          year: { type: 'integer' as const, description: 'Optional 4-digit year, e.g. 2026' },
+          month: { type: 'integer' as const, description: 'Optional month number 1-12, e.g. 5 for May' },
+        },
+      },
+    },
+  },
+  {
+    type: 'function' as const,
+    function: {
+      name: 'get_clinic_overview',
+      description:
+        'Retrieve overall clinic KPIs (total revenue, total admissions, average bill, bed occupancy, physician workload rankings, and affliction distribution) across the entire dataset.',
+      parameters: {
+        type: 'object' as const,
+        properties: {},
+      },
     },
   },
 ];
@@ -931,9 +942,18 @@ async function executeClinicTool(name: string, args: Record<string, any> = {}) {
     const year = Number(args.year) || 2026;
     const month = Number(args.month) || 8;
     const limit = Math.min(Math.max(Number(args.limit) || 35, 1), 100);
+    const doctorFilter = typeof args.doctorName === 'string'
+      ? args.doctorName.trim().toLowerCase().replace(/^dr\.?\s*/i, '')
+      : '';
+    const matchingDoctors = doctorFilter
+      ? doctors.filter((d: any) => `${d.firstName || ''} ${d.lastName || ''}`.toLowerCase().includes(doctorFilter))
+      : [];
+    const matchingDoctorIds = new Set(matchingDoctors.map((d: any) => Number(d.doctorID)));
 
     const matched = patientRecords
-      .filter((r: any) => matchesMonth(r.addmission, year, month))
+      .filter((r: any) =>
+        matchesMonth(r.addmission, year, month) && (!doctorFilter || matchingDoctorIds.has(Number(r.doctorID)))
+      )
       .sort((a: any, b: any) => String(a.addmission).localeCompare(String(b.addmission)));
 
     const doctorCounts: Record<string, { doctorName: string; specialty: string; count: number }> = {};
@@ -963,6 +983,11 @@ async function executeClinicTool(name: string, args: Record<string, any> = {}) {
       month,
       totalAdmissionsInPeriod: matched.length,
       totalPatientsInClinicRegistry: patients.length,
+      requestedDoctor: args.doctorName || null,
+      matchedDoctors: doctorFilter ? matchingDoctors.map((d: any) => `Dr. ${d.firstName} ${d.lastName}`) : undefined,
+      availableDoctors: doctorFilter && matched.length === 0
+        ? doctors.map((d: any) => `Dr. ${d.firstName} ${d.lastName}`)
+        : undefined,
       attendingPhysiciansSummary: Object.values(doctorCounts).sort((a, b) => b.count - a.count),
       sampleAdmissions: rows.slice(0, limit),
       omittedRowCount: Math.max(0, rows.length - limit),
@@ -1128,6 +1153,7 @@ Your dual responsibilities:
 1. Clinical Operations & Financial Analyst:
    - Answer questions about clinic admissions, attending physicians, room usage (including cross-contamination contact tracing), room medical staff headcounts, healthcare services rendered, and financial revenues.
    - ALWAYS invoke the provided database query tools to retrieve exact numbers, patient names, staff rosters, and service breakdowns before answering data questions. Never fabricate counts or records.
+   - For doctor-specific questions (e.g. "patients treated by Dr. Jennifer Garcia in August"), pass the doctor's name in query_admissions_by_period's doctorName argument instead of filtering the returned sample yourself. Resolve relative dates ("past August", "last May") against the current date and use the most recent occurrence. If a doctor name matches nobody, tell the user and suggest a matching name from availableDoctors.
    - When returning tabular results (e.g. service revenues, staffing rosters, or sample patient admissions), format them cleanly with Markdown tables and clearly state both totals (e.g. total patients in period, total staff headcount, total monthly revenue) and note if the full result set has additional rows beyond the displayed sample.
 
 2. Senior Supabase PostgreSQL Database Engineer:
@@ -1148,7 +1174,7 @@ Keep responses concise, structured, accurate, and directly helpful for clinic ad
 app.post('/api/chat', async (req, res) => {
   if (!ai) {
     return res.status(503).json({
-      error: 'Gemini API key is not configured on the server. Please set GEMINI_API_KEY in your .env file.',
+      error: 'Groq API key is not configured on the server. Please set GROQ_API_KEY in your .env file.',
     });
   }
 
@@ -1162,67 +1188,65 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'At least one user message is required.' });
     }
 
-    const contents: any[] = validMessages.map((m: any) => ({
-      role: m.role,
-      parts: [{ text: m.text }],
-    }));
+    const messages: any[] = [
+      { role: 'system', content: `${CLINIC_CHAT_SYSTEM_INSTRUCTION}\n\nCurrent date: ${new Date().toISOString().slice(0, 10)}` },
+      ...validMessages.map((m: any) => ({
+        role: m.role === 'model' ? 'assistant' : m.role,
+        content: m.text,
+      })),
+    ];
 
     const toolsUsed: Array<{ name: string; summary: string }> = [];
 
-    let response = await ai.models.generateContent({
-      model: 'gemini-4-hydrogen',
-      contents,
-      config: {
-        systemInstruction: CLINIC_CHAT_SYSTEM_INSTRUCTION,
-        tools: [{ functionDeclarations: clinicFunctionDeclarations }],
-      },
+    let response = await ai.chat.completions.create({
+      model: 'openai/gpt-oss-20b',
+      messages,
+      tools: clinicTools,
+      tool_choice: 'auto',
     });
 
     let iterations = 0;
-    while (response.functionCalls && response.functionCalls.length > 0 && iterations < 6) {
+    let toolCalls = response?.choices?.[0]?.message?.tool_calls ?? [];
+    while (toolCalls.length > 0 && iterations < 6) {
       iterations += 1;
-      const modelContent = response.candidates?.[0]?.content;
+      const modelContent = response?.choices?.[0]?.message;
       if (!modelContent) break;
-      contents.push(modelContent);
+      messages.push(modelContent);
 
-      const responseParts: any[] = [];
-      for (const call of response.functionCalls) {
-        const result = await executeClinicTool(call.name || '', (call.args as Record<string, any>) || {});
+      const toolResults: any[] = [];
+      for (const call of toolCalls) {
+        const fn = call.function;
+        const args = typeof fn.arguments === 'string' ? JSON.parse(fn.arguments || '{}') : (fn.arguments || {});
+        const result = await executeClinicTool(fn.name || '', args);
         toolsUsed.push({
-          name: call.name || 'query',
-          summary: JSON.stringify(call.args || {}),
+          name: fn.name || 'query',
+          summary: JSON.stringify(args),
         });
-        responseParts.push({
-          functionResponse: {
-            id: call.id,
-            name: call.name,
-            response: result,
-          },
+        toolResults.push({
+          role: 'tool',
+          tool_call_id: call.id,
+          content: JSON.stringify(result),
         });
       }
 
-      contents.push({
-        role: 'user',
-        parts: responseParts,
-      });
+      messages.push(...toolResults);
 
-      response = await ai.models.generateContent({
-        model: 'gemini-4-hydrogen',
-        contents,
-        config: {
-          systemInstruction: CLINIC_CHAT_SYSTEM_INSTRUCTION,
-          tools: [{ functionDeclarations: clinicFunctionDeclarations }],
-        },
+      response = await ai.chat.completions.create({
+        model: 'openai/gpt-oss-20b',
+        messages,
+        tools: clinicTools,
+        tool_choice: 'auto',
       });
+      toolCalls = response?.choices?.[0]?.message?.tool_calls ?? [];
     }
 
     return res.json({
-      reply: response.text || 'I was unable to generate a response for that query.',
+      reply: response?.choices?.[0]?.message?.content || 'I was unable to generate a response for that query.',
       toolsUsed,
     });
   } catch (err: any) {
-    console.error('Gemini chat error:', err);
-    let rawMsg = err?.message || 'Failed to generate response from Gemini API.';
+    console.error('Groq chat error:', err);
+    let rawMsg = (err?.message || 'Failed to generate response from Groq API.').replace(/^\d+\s+/, '');
     try {
       const parsed = JSON.parse(rawMsg);
       if (parsed?.error?.message) {
@@ -1232,8 +1256,8 @@ app.post('/api/chat', async (req, res) => {
       // keep rawMsg as-is when not JSON
     }
     const status =
-      err?.status === 403 || rawMsg.includes('PERMISSION_DENIED') || rawMsg.includes('free tier is not available')
-        ? 403
+      err?.status === 401
+        ? 401
         : err?.status === 400 || rawMsg.includes('API_KEY_INVALID')
         ? 400
         : err?.status === 404 || rawMsg.includes('NOT_FOUND')
