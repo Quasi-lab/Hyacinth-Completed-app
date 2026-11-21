@@ -3,7 +3,7 @@
   "outputDirectory": "app/web/dist",
   "functions": {
     "api/[[...path]].ts": {
-      "includeFiles": ["server.ts"]
+      "includeFiles": "server.ts"
     }
   },
   "routes": [
