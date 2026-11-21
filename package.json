@@ -8,7 +8,7 @@
     "start": "npm run build && tsx server.ts --prod",
     "build": "vite build",
     "preview": "vite preview",
-    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true});fs.rmSync('server.js',{force:true})\"",
+    "clean": "node -e \"fs.rmSync('app/web/dist',{recursive:true,force:true});fs.rmSync('server.js',{force:true})\"",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
