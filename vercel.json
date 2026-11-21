@@ -1,6 +1,13 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "app/web/dist",
+  "framework": "node",
+  "functions": {
+    "api/[[...path]].ts": {
+      "maxDuration": 300,
+      "memory": 2048
+    }
+  },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/[[...path]].ts" },
     { "handle": "filesystem" },
