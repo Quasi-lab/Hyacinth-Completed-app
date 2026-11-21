@@ -1,4 +1,4 @@
-import { app } from '../server';
+import { app } from './server';
 
 // Vercel routes /api/* to this function; Express handles /api/chat, /api/finals,
 // /api/analytics, /api/seed-record, /api/health, etc. Importing server.ts here
