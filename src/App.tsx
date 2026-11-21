@@ -297,7 +297,7 @@ export default function App() {
         data={data}
       />
 
-      {/* Multi-turn Gemini Clinic AI Analyst */}
+      {/* Multi-turn Groq Clinic AI Analyst */}
       <ClinicChatbot />
       <ThemeFab />
     </div>

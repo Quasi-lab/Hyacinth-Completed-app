@@ -333,7 +333,7 @@ export const ClinicChatbot: React.FC = () => {
         {
           id: `err-${Date.now()}`,
           role: 'model',
-          text: err?.message || 'Unable to reach the Gemini analyst service.',
+          text: err?.message || 'Unable to reach the Groq analyst service.',
           isError: true,
         },
       ]);

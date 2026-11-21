@@ -176,6 +176,6 @@ The dashboard runs offline with the in-memory star schema (378 admissions). Copy
 | --- | --- |
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (or `VITE_SUPABASE_PUBLISHABLE_KEY`) | Server reads the live star schema and the Instruments tab uses real `public.instruments` rows. Must be exposed to Vite, so they are sent to the browser. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side only; preferred over the anon key for inserts from the New Record modal. |
-| `GEMINI_API_KEY` | Enables the "Clinic AI Analyst" chat (`/api/chat`). Without it the endpoint returns 503 and the rest of the app is unaffected. |
+| `GROQ_API_KEY` | Enables the "Clinic AI Analyst" chat (`/api/chat`). Without it the endpoint returns 503 and the rest of the app is unaffected. |
 
 Check what the server picked up at **http://localhost:3000/api/health**: `"mode": "supabase-live"` means the database is connected, `"mode": "in-memory-fallback"` means you are on demo data.
