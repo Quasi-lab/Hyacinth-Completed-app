@@ -47,10 +47,10 @@ export const Header: React.FC<Props> = ({
             <motion.div
               whileHover={{ rotate: 5, scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-              className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-xs cursor-pointer"
+              className="w-9 h-9 rounded-xl bg-white ring-1 ring-slate-200/80 dark:ring-slate-700 flex items-center justify-center p-1 shadow-xs cursor-pointer"
               onClick={() => onSelectTab('overview')}
             >
-              <span className="font-bold text-lg font-serif">H</span>
+              <img src="/logo.svg" alt="" className="h-full w-full object-contain" />
             </motion.div>
             <a
               href="#overview"
