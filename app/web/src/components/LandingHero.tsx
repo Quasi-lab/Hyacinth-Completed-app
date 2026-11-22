@@ -169,7 +169,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ children }) => {
           y: heroDismissed || reduceMotion ? 0 : dashboardY,
           '--dashboard-fade': heroDismissed || reduceMotion ? 1 : dashboardOpacity,
         } as React.CSSProperties}
-        className="relative z-10 opacity-[var(--dashboard-fade)]"
+        className="relative z-10 flex flex-1 flex-col opacity-[var(--dashboard-fade)]"
       >
         {children}
       </motion.div>
