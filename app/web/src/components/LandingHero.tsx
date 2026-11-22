@@ -178,10 +178,13 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ children }) => {
         <button
           type="button"
           onClick={restoreHero}
-          className="fixed bottom-24 right-5 z-40 inline-flex min-h-12 items-center gap-2 rounded-full border border-emerald-200/80 bg-white/85 px-4 text-sm font-semibold text-emerald-800 shadow-lg shadow-emerald-900/10 backdrop-blur-md transition-colors hover:bg-white hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8FAFC] dark:border-emerald-500/25 dark:bg-slate-900/85 dark:text-emerald-300 dark:shadow-black/40 dark:hover:bg-slate-800 dark:hover:text-emerald-200 dark:focus-visible:ring-offset-slate-950"
+          aria-label="Back to top"
+          className="group fixed bottom-24 right-5 z-40 inline-flex h-12 min-w-12 items-center justify-center overflow-hidden rounded-full border border-emerald-200/80 bg-white/85 px-3 text-sm font-semibold text-emerald-800 shadow-lg shadow-emerald-900/10 backdrop-blur-md transition-colors hover:bg-white hover:text-emerald-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8FAFC] dark:border-emerald-500/25 dark:bg-slate-900/85 dark:text-emerald-300 dark:shadow-black/40 dark:hover:bg-slate-800 dark:hover:text-emerald-200 dark:focus-visible:ring-offset-slate-950"
         >
-          <ArrowUp className="h-4 w-4" aria-hidden="true" />
-          Back to top
+          <ArrowUp className="h-4 w-4 shrink-0" aria-hidden="true" />
+          <span className="ml-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:ml-2 group-hover:max-w-[110px] group-hover:opacity-100 group-focus-visible:ml-2 group-focus-visible:max-w-[110px] group-focus-visible:opacity-100 motion-reduce:transition-none">
+            Back to top
+          </span>
         </button>
       )}
     </>
