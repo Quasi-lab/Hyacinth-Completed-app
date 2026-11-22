@@ -374,15 +374,17 @@ export const ClinicChatbot: React.FC = () => {
             whileHover={{ scale: 1.03, y: -2 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-5 right-5 z-40 px-4 py-3 rounded-2xl bg-gradient-to-tr from-emerald-700 to-teal-600 text-white shadow-lg shadow-emerald-900/20 border border-emerald-400/30 flex items-center gap-2.5 hover:from-emerald-800 hover:to-teal-700 transition-all"
+            className="group fixed bottom-5 right-5 z-40 h-12 min-w-12 px-2 rounded-full overflow-hidden bg-gradient-to-tr from-emerald-700 to-teal-600 text-white shadow-lg shadow-emerald-900/20 border border-emerald-400/30 flex items-center justify-center hover:from-emerald-800 hover:to-teal-700 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8FAFC] dark:focus-visible:ring-offset-slate-950"
             aria-label="Open Clinic AI Analyst Chat"
           >
-            <div className="w-7 h-7 rounded-xl bg-white/15 flex items-center justify-center">
+            <div className="w-7 h-7 shrink-0 rounded-xl bg-white/15 flex items-center justify-center">
               <MessageSquareText className="w-4 h-4" />
             </div>
-            <div className="text-left">
-              <div className="text-xs font-bold leading-none">Clinic AI Analyst</div>
-              <div className="text-[10px] text-emerald-100 mt-0.5 leading-none">Ask data & SQL questions</div>
+            <div className="ml-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-all duration-200 group-hover:ml-2.5 group-hover:max-w-[170px] group-hover:opacity-100 group-focus-visible:ml-2.5 group-focus-visible:max-w-[170px] group-focus-visible:opacity-100 motion-reduce:transition-none">
+              <div className="text-left">
+                <div className="text-xs font-bold leading-none">Clinic AI Analyst</div>
+                <div className="text-[10px] text-emerald-100 mt-0.5 leading-none">Ask data & SQL questions</div>
+              </div>
             </div>
           </motion.button>
         )}
