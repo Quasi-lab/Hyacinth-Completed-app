@@ -1,7 +1,8 @@
 // Local development server — imports the Express app from the Vercel function file,
 // adds Vite middleware in dev, and starts listening.
+import 'dotenv/config';
 import express from 'express';
-import { app } from './api/[[...path]]';
+import { app } from './api/[[...path]].ts';
 import path from 'path';
 import http from 'http';
 import { fileURLToPath } from 'url';
@@ -27,10 +28,10 @@ async function startServer() {
   } else {
     const isHmrDisabled = process.env.DISABLE_HMR === 'true';
     const vite = await createViteServer({
-      root: path.resolve(__dirname, 'app/web'),
+      configFile: path.resolve(__dirname, 'vite.config.ts'),
       server: {
         middlewareMode: true,
-        hmr: isHmrDisabled ? false : { server: httpServer },
+        ws: isHmrDisabled ? false : { server: httpServer },
       },
       appType: 'spa',
     });
@@ -43,6 +44,6 @@ async function startServer() {
 }
 
 // Only start listening when run directly (`tsx server.ts`).
-if (import.meta.main) {
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
   startServer();
 }

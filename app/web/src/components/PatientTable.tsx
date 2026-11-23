@@ -1,3 +1,4 @@
+import { manilaDate } from '../../../../finals';
 import React, { useState, useMemo } from 'react';
 import { JoinedPatientRecord } from '../types/database';
 import { Search, ChevronLeft, ChevronRight, Eye, Filter, ArrowUpDown } from 'lucide-react';
@@ -115,7 +116,11 @@ export const PatientTable: React.FC<Props> = ({
 
           {hasActiveFilters && (
             <button
-              onClick={onClearFilters}
+              onClick={() => {
+                setRoomFilter('ALL');
+                setSearchQuery('');
+                onClearFilters();
+              }}
               className="text-xs px-2.5 py-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 bg-slate-100 dark:bg-slate-800 rounded-lg transition-colors flex items-center gap-1"
             >
               Reset Filters
@@ -148,7 +153,7 @@ export const PatientTable: React.FC<Props> = ({
               </tr>
             ) : (
               paginatedRecords.map(rec => {
-                const dateStr = rec.admission ? rec.admission.slice(0, 10) : '—';
+                const dateStr = manilaDate(rec.admission) || '—';
                 const cost = rec.bill?.financialCost || 0;
 
                 return (

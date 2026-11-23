@@ -22,7 +22,7 @@ export const RecordDetailModal: React.FC<Props> = ({ record, onClose }) => {
               </span>
               <span className="text-xs text-slate-400">·</span>
               <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                {record.admission ? new Date(record.admission).toLocaleString() : 'N/A'}
+                {record.admission ? new Date(record.admission).toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : 'N/A'}
               </span>
             </div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-1">

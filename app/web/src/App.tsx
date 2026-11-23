@@ -41,21 +41,19 @@ export default function App() {
 
   // Auto-refresh interval (in seconds, 0 = manual)
   const [refreshInterval, setRefreshInterval] = useState<number>(30);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const inFlight = useRef(false);
 
-  const fetchAnalytics = useCallback(async (isBackground = false) => {
-    if (!isBackground) {
-      if (!data) setIsLoading(true);
-      else setIsRefreshing(true);
-    } else {
-      setIsRefreshing(true);
-    }
+  const fetchAnalytics = useCallback(async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setIsRefreshing(true);
     setError(null);
 
     try {
       const res = await fetch('/api/analytics?refresh=true');
       if (!res.ok) {
-        throw new Error(`Failed to load analytics: ${res.status} ${res.statusText}`);
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.error || `Analytics synchronization failed (HTTP ${res.status}).`);
       }
       const json: AnalyticsPayload = await res.json();
       setData(json);
@@ -63,29 +61,21 @@ export default function App() {
       console.error('Fetch error:', err);
       setError(err.message || 'Error communicating with Supabase database.');
     } finally {
+      inFlight.current = false;
       setIsLoading(false);
       setIsRefreshing(false);
     }
-  }, [data]);
+  }, []);
 
   // Initial load
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+  }, [fetchAnalytics]);
 
-  // Auto-refresh timer hook
   useEffect(() => {
-    if (timerRef.current) clearInterval(timerRef.current);
-
-    if (refreshInterval > 0) {
-      timerRef.current = setInterval(() => {
-        fetchAnalytics(true);
-      }, refreshInterval * 1000);
-    }
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    if (!refreshInterval) return;
+    const timer = setInterval(fetchAnalytics, refreshInterval * 1000);
+    return () => clearInterval(timer);
   }, [refreshInterval, fetchAnalytics]);
 
   const handleClearFilters = () => {
@@ -100,11 +90,12 @@ export default function App() {
       <Header
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        onRefresh={() => fetchAnalytics(false)}
+        onRefresh={() => fetchAnalytics()}
         isRefreshing={isRefreshing}
         onOpenNewRecord={() => setIsNewRecordOpen(true)}
         onOpenSchema={() => setIsSchemaModalOpen(true)}
         lastUpdated={data?.timestamp || ''}
+        syncStatus={error ? 'error' : data?.source ?? 'connecting'}
         refreshInterval={refreshInterval}
         onChangeInterval={setRefreshInterval}
       />
@@ -128,7 +119,7 @@ export default function App() {
               <h4 className="font-semibold">Database Sync Error</h4>
               <p className="text-xs text-red-700 dark:text-red-400 mt-1">{error}</p>
               <button
-                onClick={() => fetchAnalytics(false)}
+                onClick={() => fetchAnalytics()}
                 className="mt-3 px-3 py-1.5 text-xs font-medium bg-red-700 text-white rounded-lg hover:bg-red-800 transition-colors inline-flex items-center gap-1.5"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
@@ -150,7 +141,7 @@ export default function App() {
               className="space-y-8"
             >
               {activeTab === 'finals' ? (
-                <FinalsView />
+                <FinalsView warehouseSync={data.timestamp} />
               ) : activeTab === 'instruments' ? (
                 <InstrumentsView />
               ) : (
@@ -284,7 +275,7 @@ export default function App() {
         <NewRecordModal
           isOpen={isNewRecordOpen}
           onClose={() => setIsNewRecordOpen(false)}
-          onSuccess={() => fetchAnalytics(false)}
+          onSuccess={() => fetchAnalytics()}
           doctors={data.dimensions.doctors}
           nurses={data.dimensions.nurses}
           rooms={data.dimensions.rooms}

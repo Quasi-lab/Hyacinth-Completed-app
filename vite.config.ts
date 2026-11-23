@@ -8,6 +8,7 @@ const webRoot = path.resolve(import.meta.dirname, 'app/web');
 export default defineConfig(() => {
   return {
     root: webRoot,
+    envDir: import.meta.dirname,
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

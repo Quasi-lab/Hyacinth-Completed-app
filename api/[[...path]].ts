@@ -1,9 +1,8 @@
-// Self-contained Vercel serverless function with the full Express app inlined.
-// No external imports from other files — everything is here so Vercel bundles it as one file.
 import express from 'express';
 import { Groq } from 'groq-sdk';
+import { analyzeFinals, manilaDate } from '../finals';
 
-const app = express();
+export const app = express();
 app.use(express.json());
 
 // Resolve Supabase Base URL (ensuring clean rest base)
@@ -71,9 +70,9 @@ function createMockStarSchemaStore() {
     { roomId: 315, serviceStart: '2018-04-20', servicableBeds: 4, currentAvailability: true, roomClass: 'General Ward' },
   ];
 
-  const patients: any[] = [];
-  const bills: any[] = [];
-  const patientRecords: any[] = [];
+  const patients: { patientID: number; firstName: string; lastName: string; patientBdate: string }[] = [];
+  const bills: { billID: number; purchasedAt: string; productName: string; financialCost: string; details: string }[] = [];
+  const patientRecords: { recordID: number; admission: string; patientID: number; roomID: number; doctorID: number; nurseID: number; billID: number }[] = [];
 
   let nextRecordId = 1001;
   let nextPatientId = 5001;
@@ -118,7 +117,7 @@ function createMockStarSchemaStore() {
 
     patientRecords.push({
       recordID,
-      addmission: opts.admissionIso,
+      admission: opts.admissionIso,
       patientID,
       roomID: opts.roomID,
       doctorID: opts.doctorID,
@@ -175,7 +174,7 @@ function createMockStarSchemaStore() {
     ['Ben', 'Mendoza', '2026-05-10T10:06:10.414Z'],
   ];
 
-  const mockStore: any = { doctors, nurses, rooms, patients, bills, patientRecords };
+  const mockStore = { doctors, nurses, rooms, patients, bills, patientRecords };
 
   // Add May 2026 records
   for (let i = 0; i < mayRoom301SamplePatients.length; i++) {
@@ -302,25 +301,62 @@ function createMockStarSchemaStore() {
 const mockStore = createMockStarSchemaStore();
 
 // Helper to query Supabase REST API
-async function fetchSupabaseTable(tableName: string, queryParams: string = '') {
+async function fetchSupabaseTable(tableName: string, queryParams: string = '', exactCount = false) {
   const url = `${supabaseRestUrl}/${tableName}${queryParams ? `?${queryParams}` : ''}`;
   const keyToUse = serviceRoleKey || anonKey;
   const res = await fetch(url, {
+    signal: AbortSignal.timeout(15_000),
     headers: {
       apikey: keyToUse,
+      ...(exactCount ? { Prefer: 'count=exact' } : {}),
       ...(keyToUse.startsWith('sb_') ? {} : { Authorization: `Bearer ${keyToUse}` }),
       'Content-Type': 'application/json',
     },
   });
 
   if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Failed to fetch ${tableName}: ${res.status} ${errText}`);
+    throw new Error(`Supabase read failed for ${tableName} (HTTP ${res.status}).`);
   }
-  return res.json();
+  const rows = await res.json();
+  if (!Array.isArray(rows)) {
+    throw new Error(`Supabase returned an invalid row list for ${tableName}.`);
+  }
+  if (!exactCount) return { rows };
+  const count = Number(res.headers.get('content-range')?.match(/\/(\d+)$/)?.[1]);
+  if (!Number.isSafeInteger(count)) {
+    throw new Error(`Supabase did not return an exact count for ${tableName}.`);
+  }
+  return { rows, count };
 }
 
-// In-memory cache for fast responsive dashboard queries with 5s TTL
+async function fetchAllRows(tableName: string, primaryKey: string) {
+  const records: any[] = [];
+  let lastId: number | undefined;
+  let expectedCount = 0;
+  do {
+    const params = new URLSearchParams({ order: `${primaryKey}.asc`, limit: '1000' });
+    if (lastId !== undefined) params.set(primaryKey, `gt.${lastId}`);
+    const firstPage = lastId === undefined;
+    const { rows, count } = await fetchSupabaseTable(tableName, params.toString(), firstPage);
+    if (count !== undefined) expectedCount = count;
+    for (const row of rows) {
+      const id = row[primaryKey];
+      if (!Number.isSafeInteger(id) || (lastId !== undefined && id <= lastId)) {
+        throw new Error(`Invalid or duplicate primary key returned for ${tableName}.`);
+      }
+      lastId = id;
+      records.push(row);
+    }
+    if (!rows.length) break;
+  } while (records.length < expectedCount);
+
+  if (records.length !== expectedCount) {
+    throw new Error(`${tableName} changed or returned incomplete data during synchronization. Retry the read.`);
+  }
+  return records;
+}
+
+// In-memory cache for dashboard requests without a forced refresh
 let cachedAnalytics: any = null;
 let lastCacheTime = 0;
 const CACHE_TTL_MS = 30000;
@@ -348,179 +384,20 @@ function inferAffliction(productName?: string, details?: string, specialization?
 }
 
 // Load live star schema from Supabase
-async function loadStarSchemaTables() {
+async function loadStarSchemaTables(requireLive = false) {
   if (!isSupabaseLiveConfigured()) {
-    return mockStore;
+    if (requireLive) throw new Error('Configure a Supabase project URL and publishable key to run live analysis.');
+    return { ...mockStore, source: 'demo' as const };
   }
-  try {
-    const [patientRecords, bills, doctors, nurses, rooms, patients] = await Promise.all([
-      fetchSupabaseTable('PatientRecords'),
-      fetchSupabaseTable('Bill_Dim'),
-      fetchSupabaseTable('Doctor_Dim'),
-      fetchSupabaseTable('Nurse_Dim'),
-      fetchSupabaseTable('Room_Dim'),
-      fetchSupabaseTable('Patient_Dim'),
-    ]);
-    return { patientRecords, bills, doctors, nurses, rooms, patients };
-  } catch (error) {
-    console.warn('Supabase warehouse read failed. Using in-memory data.', error);
-    return mockStore;
-  }
-}
-
-// --- analyzeFinals function (inlined from finals.ts) ---
-type Fact = {
-  recordID: number;
-  addmission: string | null;
-  patientID: number;
-  doctorID: number;
-  nurseID: number;
-  roomID: number;
-  billID: number;
-};
-type Bill = { billID: number; purchasedAt: string | null; productName: string | null; financialCost: number | string | null; details: string | null };
-type Person = { firstName: string | null; lastName: string | null };
-type Warehouse = {
-  patientRecords: Fact[];
-  bills: Bill[];
-  doctors: (Person & { doctorID: number })[];
-  nurses: (Person & { nurseID: number })[];
-};
-
-const isFinalsBatch = (id: number) => id >= -5000 && id <= -1;
-const isMidterm = (id: number) => id >= 1 && id <= 1504;
-const manilaMonth = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit',
-});
-const monthOf = (date: string | null) => date && Number.isFinite(Date.parse(date))
-  ? manilaMonth.format(new Date(date)) : '';
-const money = (value: number) => Math.round(value * 100) / 100;
-const nameOf = (person: Person) => [person.firstName, person.lastName].filter(Boolean).join(' ');
-const charge = (bill?: Bill) => bill?.financialCost == null || bill.financialCost === ''
-  ? NaN : Number(bill.financialCost);
-
-function rank<T extends { label: string; value: number }>(rows: T[]) {
-  return rows.sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));
-}
-
-function quantile(sorted: number[], fraction: number) {
-  const index = (sorted.length - 1) * fraction;
-  const lower = Math.floor(index);
-  return sorted[lower] + (sorted[Math.ceil(index)] - sorted[lower]) * (index - lower);
-}
-
-function analyzeFinals(warehouse: Warehouse, readMs: number) {
-  const { patientRecords, bills, doctors, nurses } = warehouse;
-  const billMap = new Map(bills.map(bill => [bill.billID, bill]));
-  const doctorMap = new Map(doctors.map(doctor => [doctor.doctorID, nameOf(doctor)]));
-  const nurseMap = new Map(nurses.map(nurse => [nurse.nurseID, nameOf(nurse)]));
-
-  function summarize(facts: Fact[]) {
-    const started = performance.now();
-    const admissions = new Map<number, number>();
-    const roomDays = new Map<string, number>();
-    const roomPatients = new Set<number>();
-    const roomDoctors = new Set<number>();
-    const roomNurses = new Set<number>();
-    const services = new Map<string, { value: number; count: number }>();
-    const cohortBillIds = new Set(facts.map(fact => fact.billID));
-    for (const fact of facts) {
-      const month = monthOf(fact.addmission);
-      if (month === '2026-08') {
-        admissions.set(fact.doctorID, (admissions.get(fact.doctorID) ?? 0) + 1);
-      }
-      if (fact.roomID === 303) {
-        if (doctorMap.has(fact.doctorID)) roomDoctors.add(fact.doctorID);
-        if (nurseMap.has(fact.nurseID)) roomNurses.add(fact.nurseID);
-      }
-      if (month !== '2026-05') continue;
-      if (fact.roomID === 301 && fact.addmission) {
-        roomPatients.add(fact.patientID);
-        const day = String(new Date(Date.parse(fact.addmission) + 8 * 3600_000).getUTCDate()).padStart(2, '0');
-        roomDays.set(day, (roomDays.get(day) ?? 0) + 1);
-      }
-    }
-    for (const bill of bills) {
-      if (!cohortBillIds.has(bill.billID) || monthOf(bill.purchasedAt) !== '2026-05') continue;
-      const cost = charge(bill);
-      if (!Number.isFinite(cost)) continue;
-      const label = bill.productName?.trim() || 'Unspecified service';
-      const previous = services.get(label) ?? { value: 0, count: 0 };
-      services.set(label, { value: previous.value + cost, count: previous.count + 1 });
-    }
-    const scenarios = {
-      admissions: rank(Array.from(admissions, ([id, value]) => ({ label: doctorMap.get(id) || `Doctor ${id}`, value }))),
-      roomUsage: Array.from({ length: 31 }, (_, index) => {
-        const day = String(index + 1).padStart(2, '0');
-        return { label: `May ${day}`, value: roomDays.get(day) ?? 0 };
-      }),
-      staffing: [{ label: 'Doctors', value: roomDoctors.size }, { label: 'Nurses', value: roomNurses.size }],
-      revenue: rank(Array.from(services, ([label, entry]) => ({ label, value: money(entry.value), count: entry.count }))),
-    };
-    return {
-      facts: facts.length, scenarios, distinctRoomPatients: roomPatients.size,
-      staff: [
-        ...Array.from(roomDoctors, id => `Dr. ${doctorMap.get(id)}`),
-        ...Array.from(roomNurses, id => nurseMap.get(id) ?? ''),
-      ].sort(),
-      analysisMs: performance.now() - started,
-    };
-  }
-
-  const baseline = patientRecords.filter(fact => isMidterm(fact.recordID));
-  const before = summarize(baseline);
-  const after = summarize(patientRecords);
-  const batch = patientRecords.filter(fact => isFinalsBatch(fact.recordID));
-  const training = new Map<string, number[]>();
-  for (const fact of batch) {
-    const bill = billMap.get(fact.billID);
-    const cost = charge(bill);
-    if (!bill?.productName || !Number.isFinite(cost) || cost < 0) continue;
-    const group = training.get(bill.productName) ?? [];
-    group.push(cost);
-    training.set(bill.productName, group);
-  }
-
-  const fences = new Map<string, number>();
-  for (const [service, costs] of training) {
-    if (costs.length < 20) continue;
-    costs.sort((a, b) => a - b);
-    const q1 = quantile(costs, .25);
-    const q3 = quantile(costs, .75);
-    fences.set(service, q3 + 1.5 * (q3 - q1));
-  }
-
-  let tp = 0, fp = 0, fn = 0, tn = 0, scored = 0, skipped = 0;
-  const alerts: { recordID: number; service: string; cost: number; fence: number }[] = [];
-  for (const fact of patientRecords) {
-    const bill = billMap.get(fact.billID);
-    const cost = charge(bill);
-    const service = bill?.productName;
-    const fence = service ? fences.get(service) : undefined;
-    if (!service || fence === undefined || !Number.isFinite(cost) || cost < 0) {
-      skipped++;
-      continue;
-    }
-    scored++;
-    const flagged = cost > fence;
-    if (flagged) alerts.push({ recordID: fact.recordID, service, cost, fence: money(fence) });
-    if (!isFinalsBatch(fact.recordID)) continue;
-    const labeled = bill.details === 'Synthetic duplicate-charge test';
-    if (labeled && flagged) tp++;
-    else if (labeled) fn++;
-    else if (flagged) fp++;
-    else tn++;
-  }
-  const precision = tp + fp ? tp / (tp + fp) : null;
-  const recall = tp + fn ? tp / (tp + fn) : null;
-  const f1 = 2 * tp + fp + fn ? 2 * tp / (2 * tp + fp + fn) : null;
-  return {
-    before, after, batchCount: batch.length, readMs,
-    mining: {
-      scored, skipped, flagged: alerts.length, tp, fp, fn, tn, precision, recall, f1,
-      alerts: alerts.sort((a, b) => (b.cost - b.fence) - (a.cost - a.fence)).slice(0, 12),
-    },
-  };
+  const [patientRecords, bills, doctors, nurses, rooms, patients] = await Promise.all([
+    fetchAllRows('PatientRecords', 'recordID'),
+    fetchAllRows('Bill_Dim', 'billID'),
+    fetchAllRows('Doctor_Dim', 'doctorID'),
+    fetchAllRows('Nurse_Dim', 'nurseID'),
+    fetchAllRows('Room_Dim', 'roomId'),
+    fetchAllRows('Patient_Dim', 'patientID'),
+  ]);
+  return { patientRecords, bills, doctors, nurses, rooms, patients, source: 'live' as const };
 }
 
 // --- API Routes ---
@@ -528,15 +405,18 @@ function analyzeFinals(warehouse: Warehouse, readMs: number) {
 app.get('/api/finals', async (_req, res) => {
   try {
     const started = performance.now();
-    const warehouse = await loadStarSchemaTables();
+    res.set('Cache-Control', 'no-store');
+    const warehouse = await loadStarSchemaTables(true);
     const result = analyzeFinals(warehouse, performance.now() - started);
-    if (result.before.facts < 1000 || result.batchCount < 5000) {
-      return res.status(409).json({ error: 'The live warehouse is missing the expected midterm baseline or finals batch.' });
+    if (result.before.facts !== 1504 || result.batchCount !== 5000) {
+      return res.status(409).json({
+        error: `The live read found ${result.before.facts} of 1,504 midterm and ${result.batchCount} of 5,000 finals admissions. Check the project and its SELECT policies against the original import.`,
+      });
     }
     return res.json(result);
   } catch (error) {
     console.error('Finals warehouse read failed:', error);
-    return res.status(503).json({ error: 'Could not read the live Supabase warehouse.' });
+    return res.status(503).json({ error: error instanceof Error ? error.message : 'Could not read the live Supabase warehouse.' });
   }
 });
 
@@ -557,6 +437,7 @@ app.get('/api/health', async (_req, res) => {
 });
 
 app.get('/api/analytics', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
   const forceRefresh = req.query.refresh === 'true';
   const now = Date.now();
 
@@ -565,7 +446,7 @@ app.get('/api/analytics', async (req, res) => {
   }
 
   try {
-    const { patientRecords, bills, doctors, nurses, rooms, patients } = await loadStarSchemaTables();
+    const { patientRecords, bills, doctors, nurses, rooms, patients, source } = await loadStarSchemaTables();
 
     // Build lookup maps for fast O(1) joins
     const billMap = new Map<number, any>();
@@ -627,7 +508,7 @@ app.get('/api/analytics', async (req, res) => {
       totalRevenue += cost;
 
       // Group timeline by admission date (ISO YYYY-MM-DD)
-      const dateKey = rec.addmission ? rec.addmission.slice(0, 10) : 'Unknown';
+      const dateKey = manilaDate(rec.admission) || 'Unknown';
       if (dateKey !== 'Unknown') {
         if (!timelineByDate[dateKey]) {
           timelineByDate[dateKey] = { date: dateKey, cost: 0, admissions: 0 };
@@ -662,7 +543,7 @@ app.get('/api/analytics', async (req, res) => {
 
       return {
         recordID: rec.recordID,
-        admission: rec.addmission,
+        admission: rec.admission,
         patient: patient
           ? {
               patientID: patient.patientID,
@@ -733,7 +614,8 @@ app.get('/api/analytics', async (req, res) => {
       .sort((a, b) => b.count - a.count);
 
     const payload = {
-      timestamp: new Date().toISOString(),
+      timestamp: source === 'live' ? new Date().toISOString() : null,
+      source,
       summary: {
         totalRevenue,
         totalRecords: patientRecords.length,
@@ -767,7 +649,7 @@ app.get('/api/analytics', async (req, res) => {
     res.json(payload);
   } catch (err: any) {
     console.error('Error fetching analytics:', err);
-    res.status(500).json({ error: err.message });
+    res.status(503).json({ error: err instanceof Error ? err.message : 'Could not synchronize the live warehouse.' });
   }
 });
 
@@ -797,7 +679,7 @@ app.post('/api/seed-record', async (req, res) => {
     if (isSupabaseLiveConfigured()) {
       try {
         // Get current max IDs to assign next sequence
-        const [latestRecord, latestBill, latestPatient] = await Promise.all([
+        const [{ rows: latestRecord }, { rows: latestBill }, { rows: latestPatient }] = await Promise.all([
           fetchSupabaseTable('PatientRecords', 'select=recordID&order=recordID.desc&limit=1'),
           fetchSupabaseTable('Bill_Dim', 'select=billID&order=billID.desc&limit=1'),
           fetchSupabaseTable('Patient_Dim', 'select=patientID&order=patientID.desc&limit=1'),
@@ -902,7 +784,7 @@ app.post('/api/seed-record', async (req, res) => {
 
     mockStore.patientRecords.unshift({
       recordID: newRecordID,
-      addmission: nowIso,
+      admission: nowIso,
       patientID: newPatientID,
       roomID,
       doctorID,
@@ -1116,7 +998,7 @@ async function executeClinicTool(name: string, args: any) {
   if (name === 'query_admissions_by_period') {
     const { year, month, doctorName, limit = 35 } = args;
     const monthStr = `${year}-${String(month).padStart(2, '0')}`;
-    let filtered = patientRecords.filter((rec: any) => rec.addmission?.startsWith(monthStr));
+    let filtered = patientRecords.filter((rec: any) => manilaDate(rec.admission).startsWith(monthStr));
     if (doctorName) {
       const searchName = doctorName.toLowerCase().replace(/^dr\.\s*/i, '');
       const matchingDoctors = doctors.filter((d: any) =>
@@ -1131,7 +1013,7 @@ async function executeClinicTool(name: string, args: any) {
       const nurse = nurseMap.get(Number(rec.nurseID));
       return {
         recordID: rec.recordID,
-        admission: rec.addmission,
+        admission: rec.admission,
         patient: patientMap.get(Number(rec.patientID)) || null,
         doctor: doctor ? { doctorID: doctor.doctorID, fullName: `Dr. ${doctor.firstName} ${doctor.lastName}`, specialization: doctor.medicalSpecialization } : null,
         nurse: nurse ? { nurseID: nurse.nurseID, fullName: `${nurse.firstName} ${nurse.lastName}`, areaAssignment: nurse.areaAssignment } : null,
@@ -1146,9 +1028,9 @@ async function executeClinicTool(name: string, args: any) {
     let filtered = patientRecords.filter((rec: any) => Number(rec.roomID) === Number(roomId));
     if (year && month) {
       const monthStr = `${year}-${String(month).padStart(2, '0')}`;
-      filtered = filtered.filter((rec: any) => rec.addmission?.startsWith(monthStr));
+      filtered = filtered.filter((rec: any) => manilaDate(rec.admission).startsWith(monthStr));
     } else if (year) {
-      filtered = filtered.filter((rec: any) => rec.addmission?.startsWith(String(year)));
+      filtered = filtered.filter((rec: any) => manilaDate(rec.admission).startsWith(String(year)));
     }
     const sample = filtered.slice(0, limit).map((rec: any) => {
       const bill = billMap.get(Number(rec.billID));
@@ -1156,7 +1038,7 @@ async function executeClinicTool(name: string, args: any) {
       const nurse = nurseMap.get(Number(rec.nurseID));
       return {
         recordID: rec.recordID,
-        admission: rec.addmission,
+        admission: rec.admission,
         patient: patientMap.get(Number(rec.patientID)) || null,
         doctor: doctor ? { doctorID: doctor.doctorID, fullName: `Dr. ${doctor.firstName} ${doctor.lastName}`, specialization: doctor.medicalSpecialization } : null,
         nurse: nurse ? { nurseID: nurse.nurseID, fullName: `${nurse.firstName} ${nurse.lastName}`, areaAssignment: nurse.areaAssignment } : null,
@@ -1198,7 +1080,7 @@ async function executeClinicTool(name: string, args: any) {
     const patientBilling = new Map<number, { total: number; count: number; bills: any[] }>();
 
     for (const rec of patientRecords) {
-      if (year && rec.addmission && !rec.addmission.startsWith(String(year))) continue;
+      if (year && rec.admission && !manilaDate(rec.admission).startsWith(String(year))) continue;
       const bill = billMap.get(Number(rec.billID));
       if (!bill) continue;
       const cost = parseFloat(bill.financialCost) || 0;
