@@ -1,6 +1,6 @@
 import express from 'express';
 import { Groq } from 'groq-sdk';
-import { analyzeFinals, manilaDate } from '../finals';
+import { analyzeFinals, manilaDate } from '../finals.ts';
 
 export const app = express();
 app.use(express.json());
