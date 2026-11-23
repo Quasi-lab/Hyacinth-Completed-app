@@ -1,6 +1,6 @@
 type Fact = {
   recordID: number;
-  addmission: string | null;
+  admission: string | null;
   patientID: number;
   doctorID: number;
   nurseID: number;
@@ -14,15 +14,24 @@ type Warehouse = {
   bills: Bill[];
   doctors: (Person & { doctorID: number })[];
   nurses: (Person & { nurseID: number })[];
+  rooms: { roomId: number }[];
+  patients: { patientID: number }[];
 };
 
+// Reserved primary keys from the Finals ETL in commit 18adf9b.
 export const isFinalsBatch = (id: number) => id >= -5000 && id <= -1;
+// The initial Finals implementation documented the original baseline range.
 const isMidterm = (id: number) => id >= 1 && id <= 1504;
-const manilaMonth = new Intl.DateTimeFormat('en-CA', {
-  timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit',
+const manilaCalendar = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit',
 });
-const monthOf = (date: string | null) => date && Number.isFinite(Date.parse(date))
-  ? manilaMonth.format(new Date(date)) : '';
+export function manilaDate(value: string | null) {
+  if (!value || !Number.isFinite(Date.parse(value))) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const parts = manilaCalendar.formatToParts(new Date(value));
+  return ['year', 'month', 'day'].map(type => parts.find(part => part.type === type)?.value).join('-');
+}
+const monthOf = (date: string | null) => manilaDate(date).slice(0, 7);
 const money = (value: number) => Math.round(value * 100) / 100;
 const nameOf = (person: Person) => [person.firstName, person.lastName].filter(Boolean).join(' ');
 const charge = (bill?: Bill) => bill?.financialCost == null || bill.financialCost === ''
@@ -54,7 +63,8 @@ export function analyzeFinals(warehouse: Warehouse, readMs: number) {
     const services = new Map<string, { value: number; count: number }>();
     const cohortBillIds = new Set(facts.map(fact => fact.billID));
     for (const fact of facts) {
-      const month = monthOf(fact.addmission);
+      const date = manilaDate(fact.admission);
+      const month = date.slice(0, 7);
       if (month === '2026-08') {
         admissions.set(fact.doctorID, (admissions.get(fact.doctorID) ?? 0) + 1);
       }
@@ -63,14 +73,15 @@ export function analyzeFinals(warehouse: Warehouse, readMs: number) {
         if (nurseMap.has(fact.nurseID)) roomNurses.add(fact.nurseID);
       }
       if (month !== '2026-05') continue;
-      if (fact.roomID === 301 && fact.addmission) {
+      if (fact.roomID === 301 && fact.admission) {
         roomPatients.add(fact.patientID);
-        const day = String(new Date(Date.parse(fact.addmission) + 8 * 3600_000).getUTCDate()).padStart(2, '0');
+        const day = date.slice(8);
         roomDays.set(day, (roomDays.get(day) ?? 0) + 1);
       }
     }
-    for (const bill of bills) {
-      if (!cohortBillIds.has(bill.billID) || monthOf(bill.purchasedAt) !== '2026-05') continue;
+    for (const id of cohortBillIds) {
+      const bill = billMap.get(id);
+      if (!bill || monthOf(bill.purchasedAt) !== '2026-05') continue;
       const cost = charge(bill);
       if (!Number.isFinite(cost)) continue;
       const label = bill.productName?.trim() || 'Unspecified service';
@@ -98,10 +109,18 @@ export function analyzeFinals(warehouse: Warehouse, readMs: number) {
 
   const baseline = patientRecords.filter(fact => isMidterm(fact.recordID));
   const before = summarize(baseline);
-  const after = summarize(patientRecords);
   const batch = patientRecords.filter(fact => isFinalsBatch(fact.recordID));
+  const after = summarize([...baseline, ...batch]);
+  const patientIds = new Set(warehouse.patients.map(patient => patient.patientID));
+  const roomIds = new Set(warehouse.rooms.map(room => room.roomId));
+  const missingReferences = patientRecords.filter(fact =>
+    !patientIds.has(fact.patientID) || !roomIds.has(fact.roomID) ||
+    !billMap.has(fact.billID) || !doctorMap.has(fact.doctorID) || !nurseMap.has(fact.nurseID)
+  ).length;
+  const duplicateIds = patientRecords.length - new Set(patientRecords.map(fact => fact.recordID)).size;
   const training = new Map<string, number[]>();
   for (const fact of batch) {
+    if (fact.recordID % 3 !== 0) continue;
     const bill = billMap.get(fact.billID);
     const cost = charge(bill);
     if (!bill?.productName || !Number.isFinite(cost) || cost < 0) continue;
@@ -133,7 +152,7 @@ export function analyzeFinals(warehouse: Warehouse, readMs: number) {
     scored++;
     const flagged = cost > fence;
     if (flagged) alerts.push({ recordID: fact.recordID, service, cost, fence: money(fence) });
-    if (!isFinalsBatch(fact.recordID)) continue;
+    if (!isFinalsBatch(fact.recordID) || fact.recordID % 3 === 0) continue;
     const labeled = bill.details === 'Synthetic duplicate-charge test';
     if (labeled && flagged) tp++;
     else if (labeled) fn++;
@@ -145,6 +164,11 @@ export function analyzeFinals(warehouse: Warehouse, readMs: number) {
   const f1 = 2 * tp + fp + fn ? 2 * tp / (2 * tp + fp + fn) : null;
   return {
     before, after, batchCount: batch.length, readMs,
+    totalFacts: patientRecords.length,
+    otherFacts: patientRecords.length - after.facts,
+    growth: baseline.length ? batch.length / baseline.length : null,
+    integrity: { missingReferences, duplicateIds },
+    synchronizedAt: new Date().toISOString(),
     mining: {
       scored, skipped, flagged: alerts.length, tp, fp, fn, tn, precision, recall, f1,
       alerts: alerts.sort((a, b) => (b.cost - b.fence) - (a.cost - a.fence)).slice(0, 12),

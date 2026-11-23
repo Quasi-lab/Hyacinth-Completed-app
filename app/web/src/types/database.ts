@@ -123,7 +123,8 @@ export interface DiseaseDistributionItem {
 }
 
 export interface AnalyticsPayload {
-  timestamp: string;
+  timestamp: string | null;
+  source: 'live' | 'demo';
   summary: AnalyticsSummary;
   charts: {
     timeline: TimelinePoint[];

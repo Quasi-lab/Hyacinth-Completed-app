@@ -10,7 +10,7 @@ export const LandingHero: React.FC<LandingHeroProps> = ({ children }) => {
   const heroRef = useRef<HTMLElement>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
-  const [heroDismissed, setHeroDismissed] = useState(false);
+  const [heroDismissed, setHeroDismissed] = useState(() => window.location.hash === '#finals');
   const heroHeightRef = useRef(0);
   const dismissScrollYRef = useRef(0);
   const isRestoringRef = useRef(false);

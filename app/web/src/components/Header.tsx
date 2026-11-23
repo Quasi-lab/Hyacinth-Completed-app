@@ -10,6 +10,7 @@ interface Props {
   onOpenNewRecord: () => void;
   onOpenSchema: () => void;
   lastUpdated: string;
+  syncStatus: 'live' | 'demo' | 'connecting' | 'error';
   refreshInterval: number;
   onChangeInterval: (interval: number) => void;
 }
@@ -32,6 +33,7 @@ export const Header: React.FC<Props> = ({
   onOpenNewRecord,
   onOpenSchema,
   lastUpdated,
+  syncStatus,
   refreshInterval,
   onChangeInterval,
 }) => {
@@ -149,12 +151,15 @@ export const Header: React.FC<Props> = ({
         <div className="py-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-400 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Supabase REST Live</span>
+              <span className={`w-2 h-2 rounded-full ${syncStatus === 'live' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+              <span>{{
+                live: 'Supabase REST Live', demo: 'Demo data',
+                connecting: 'Connecting to Supabase', error: 'Supabase sync failed',
+              }[syncStatus]}</span>
             </div>
             <span className="text-slate-300">·</span>
             <span className="font-mono text-slate-400">
-              Synced: {lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : 'Connecting...'}
+              Synced: {lastUpdated ? new Date(lastUpdated).toLocaleString('en-PH', { timeZone: 'Asia/Manila', timeZoneName: 'short' }) : 'Awaiting live sync'}
             </span>
           </div>
 
